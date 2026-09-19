@@ -1,0 +1,841 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>PostMimic | LinkedIn Style Cloner & Multi-Agent Studio</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            linkedin: {
+              DEFAULT: '#0a66c2',
+              hover: '#004182',
+              light: '#e8f3fc',
+              dark: '#002244'
+            },
+            dark: {
+              900: '#070a12',
+              850: '#0b0f19',
+              800: '#111827',
+              750: '#161f33',
+              700: '#1e293b',
+              600: '#334155',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="/static/styles.css">
+  <!-- Lucide Icons -->
+  <script src="https://unpkg.com/lucide@latest"></script>
+</head>
+<body class="bg-dark-900 text-slate-100 min-h-screen flex flex-col antialiased selection:bg-sky-500 selection:text-white">
+
+  <!-- TOP NAVIGATION BAR -->
+  <header class="sticky top-0 z-40 bg-dark-850/80 backdrop-blur-lg border-b border-slate-800">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+      
+      <!-- Brand Logo -->
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-sky-400 flex items-center justify-center shadow-lg shadow-blue-500/20">
+          <i data-lucide="sparkles" class="w-5 h-5 text-white"></i>
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <span class="text-xl font-bold tracking-tight text-white">Post<span class="text-sky-400">Mimic</span></span>
+            <span class="px-2 py-0.5 text-[10px] font-semibold tracking-wide uppercase bg-sky-500/10 text-sky-400 border border-sky-500/20 rounded-full">Multi-Agent</span>
+          </div>
+          <p class="text-xs text-slate-400 hidden sm:block">LinkedIn Style Cloner & Iterative Feedback Studio</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs (Logged In) -->
+      <nav id="nav-tabs" class="hidden md:flex items-center gap-1 bg-dark-800/60 p-1 rounded-xl border border-slate-800">
+        <button onclick="switchTab('studio')" id="tab-btn-studio" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-2 transition-all bg-sky-600 text-white shadow-sm">
+          <i data-lucide="cpu" class="w-4 h-4"></i>
+          <span>Agent Studio</span>
+        </button>
+        <button onclick="switchTab('historic')" id="tab-btn-historic" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-dark-700/50 flex items-center gap-2 transition-all">
+          <i data-lucide="history" class="w-4 h-4"></i>
+          <span>Historic Posts</span>
+          <span id="nav-historic-count" class="px-1.5 py-0.2 text-[10px] rounded-full bg-slate-800 text-slate-300 font-mono">10</span>
+        </button>
+        <button onclick="switchTab('style')" id="tab-btn-style" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-dark-700/50 flex items-center gap-2 transition-all">
+          <i data-lucide="dna" class="w-4 h-4"></i>
+          <span>Style DNA</span>
+        </button>
+        <button onclick="switchTab('drafts')" id="tab-btn-drafts" class="tab-btn px-3.5 py-1.5 rounded-lg text-xs font-medium text-slate-400 hover:text-white hover:bg-dark-700/50 flex items-center gap-2 transition-all">
+          <i data-lucide="layers" class="w-4 h-4"></i>
+          <span>Drafts & Trace</span>
+        </button>
+      </nav>
+
+      <!-- Right Header Actions -->
+      <div class="flex items-center gap-3">
+        <!-- LinkedIn Status Badge -->
+        <button onclick="openLinkedInModal()" class="hidden sm:flex items-center gap-2 px-3 py-1.5 rounded-lg bg-dark-800 border border-slate-700 hover:border-sky-500/50 transition-all text-xs font-medium text-slate-300 hover:text-white">
+          <i data-lucide="linkedin" class="w-4 h-4 text-sky-400"></i>
+          <span id="nav-linkedin-handle">Connected: Mohan</span>
+          <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+        </button>
+
+        <!-- User Profile Badge & Menu -->
+        <div id="user-header-section" class="flex items-center gap-3">
+          <div class="flex items-center gap-2 cursor-pointer" onclick="openProfileModal()">
+            <img id="nav-user-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80" alt="Avatar" class="w-8 h-8 rounded-full border border-slate-700 object-cover">
+            <div class="hidden lg:block text-left leading-none">
+              <p id="nav-user-name" class="text-xs font-semibold text-white">Mohan Sharma</p>
+              <p class="text-[10px] text-slate-400 truncate max-w-[120px]">Tech Creator</p>
+            </div>
+          </div>
+          <button onclick="logout()" title="Logout" class="p-2 rounded-lg text-slate-400 hover:text-rose-400 hover:bg-dark-800 transition-colors">
+            <i data-lucide="log-out" class="w-4 h-4"></i>
+          </button>
+        </div>
+
+        <!-- Logged Out Button -->
+        <div id="auth-header-btn" class="hidden">
+          <button onclick="openAuthModal()" class="px-4 py-2 text-xs font-semibold rounded-lg bg-sky-600 hover:bg-sky-500 text-white transition-all shadow-md shadow-sky-600/20">
+            Sign In / Demo
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </header>
+
+  <!-- MAIN APP CONTAINER -->
+  <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
+
+    <!-- TAB 1: MULTI-AGENT STUDIO -->
+    <div id="tab-studio" class="tab-content">
+      
+      <!-- Studio Header Banner -->
+      <div class="mb-6 flex flex-col md:flex-row md:items-center justify-between gap-4 p-4 rounded-2xl bg-gradient-to-r from-dark-800 via-dark-750 to-dark-800 border border-slate-800">
+        <div class="flex items-start gap-3">
+          <div class="p-2.5 rounded-xl bg-sky-500/10 border border-sky-500/20 text-sky-400">
+            <i data-lucide="bot" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h1 class="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+              Multi-Agent Post Studio
+              <span class="px-2 py-0.5 text-[10px] rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-medium">Feedback Loop Active</span>
+            </h1>
+            <p class="text-xs text-slate-400 mt-0.5">
+              Drafted by <span class="text-sky-400 font-medium">Writer Agent</span> (emulating your Style DNA) and audited by <span class="text-amber-400 font-medium">Reviewer Agent</span> with automated feedback revisions.
+            </p>
+          </div>
+        </div>
+
+        <!-- Active Persona Pill -->
+        <div class="flex items-center gap-3 bg-dark-900/80 px-3.5 py-2 rounded-xl border border-slate-700/60">
+          <div class="w-2 h-2 rounded-full bg-sky-400"></div>
+          <div>
+            <span class="text-[10px] uppercase tracking-wider text-slate-400 font-semibold block">Cloned Persona</span>
+            <span id="active-persona-title" class="text-xs font-bold text-white">Empathetic Realist & Career Coach</span>
+          </div>
+          <button onclick="switchTab('style')" class="ml-2 text-xs text-sky-400 hover:text-sky-300 font-medium">
+            <i data-lucide="settings-2" class="w-4 h-4"></i>
+          </button>
+        </div>
+      </div>
+
+      <!-- Studio 3-Column Layout -->
+      <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- Column 1: Generator Inputs (4 cols) -->
+        <div class="lg:col-span-4 space-y-5">
+          <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-4">
+            <h2 class="text-sm font-bold text-white flex items-center gap-2">
+              <i data-lucide="sliders" class="w-4 h-4 text-sky-400"></i>
+              Prompt & Configuration
+            </h2>
+
+            <!-- Topic Input -->
+            <div>
+              <label class="block text-xs font-medium text-slate-300 mb-1.5">What topic do you want to post about?</label>
+              <textarea id="gen-topic" rows="3" placeholder="e.g. Why job rejections are actually blessings in disguise..." class="w-full bg-dark-900 border border-slate-700 focus:border-sky-500 focus:ring-1 focus:ring-sky-500 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none transition-all resize-none"></textarea>
+            </div>
+
+            <!-- Quick Suggestion Pills -->
+            <div>
+              <span class="block text-[11px] font-medium text-slate-400 mb-1.5">Quick Inspiration:</span>
+              <div class="flex flex-wrap gap-1.5">
+                <button type="button" onclick="setTopic('Job rejections are actually blessings in disguise')" class="pill-btn text-[11px] px-2.5 py-1 rounded-lg bg-dark-700 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-colors">
+                  🌱 Job Rejections
+                </button>
+                <button type="button" onclick="setTopic('Why 90% of AI wrappers will fail in the next 18 months')" class="pill-btn text-[11px] px-2.5 py-1 rounded-lg bg-dark-700 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-colors">
+                  🤖 AI Wrappers
+                </button>
+                <button type="button" onclick="setTopic('Mental health matters more than any offer letter')" class="pill-btn text-[11px] px-2.5 py-1 rounded-lg bg-dark-700 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-colors">
+                  🌻 Mental Health
+                </button>
+                <button type="button" onclick="setTopic('Stop attaching someone value to the company brand name they work for')" class="pill-btn text-[11px] px-2.5 py-1 rounded-lg bg-dark-700 hover:bg-slate-700 text-slate-300 border border-slate-700/60 transition-colors">
+                  🎯 Brand Names
+                </button>
+              </div>
+            </div>
+
+            <!-- Length and Language Controls -->
+            <div class="grid grid-cols-2 gap-3 pt-2">
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1.5">Length</label>
+                <select id="gen-length" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500">
+                  <option value="Short">Short (1-5 lines)</option>
+                  <option value="Medium" selected>Medium (6-10 lines)</option>
+                  <option value="Long">Long (11-15 lines)</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-medium text-slate-300 mb-1.5">Language</label>
+                <select id="gen-language" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500">
+                  <option value="English" selected>English</option>
+                  <option value="Hinglish">Hinglish (Hindi + Eng)</option>
+                </select>
+              </div>
+            </div>
+
+            <!-- Agent Loop Iterations -->
+            <div class="pt-2">
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-medium text-slate-300">Max Review Loops</label>
+                <span id="gen-attempts-val" class="text-xs font-mono font-bold text-sky-400">3 attempts</span>
+              </div>
+              <input type="range" id="gen-max-attempts" min="1" max="4" value="3" oninput="document.getElementById('gen-attempts-val').innerText = this.value + ' attempts'" class="w-full accent-sky-500 cursor-pointer">
+              <p class="text-[10px] text-slate-400 mt-1">Reviewer agent critiques the draft and sends it back to writer if rejected.</p>
+            </div>
+
+            <!-- Generate Button -->
+            <button id="btn-generate" onclick="startGeneration()" class="w-full mt-4 py-3 px-4 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-xs flex items-center justify-center gap-2 shadow-lg shadow-sky-500/25 transition-all">
+              <i data-lucide="wand-2" class="w-4 h-4"></i>
+              <span>Launch Multi-Agent Workflow</span>
+            </button>
+
+            <!-- Agent Status Indicator -->
+            <div id="agent-status-box" class="hidden p-3 rounded-xl bg-dark-900 border border-slate-700 text-xs text-slate-300 space-y-2">
+              <div class="flex items-center gap-2 text-sky-400 font-semibold">
+                <svg class="animate-spin h-4 w-4 text-sky-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                  <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8H4z"></path>
+                </svg>
+                <span id="agent-status-title">Writer Agent drafting post...</span>
+              </div>
+              <p id="agent-status-detail" class="text-[11px] text-slate-400">Synthesizing hook & few-shot patterns...</p>
+            </div>
+
+          </div>
+
+          <!-- Historic Style Matching Card -->
+          <div class="glass-panel p-4 rounded-2xl border border-slate-800">
+            <h3 class="text-xs font-bold text-white flex items-center gap-2 mb-2">
+              <i data-lucide="check-circle-2" class="w-4 h-4 text-emerald-400"></i>
+              Style Guardrails Applied
+            </h3>
+            <ul class="text-[11px] text-slate-300 space-y-1.5 list-disc list-inside">
+              <li>First line scroll-stopping hook</li>
+              <li>Generous spacing (1-2 sentences/paragraph)</li>
+              <li>Empathetic, authentic personal voice</li>
+              <li>Zero generic buzzwords or hashtags</li>
+              <li>Concludes with engagement question</li>
+            </ul>
+          </div>
+
+        </div>
+
+        <!-- Column 2 & 3: Multi-Agent Trace Visualizer & Live Preview (8 cols) -->
+        <div class="lg:col-span-8 space-y-5">
+          
+          <!-- Tabbed Agent Iterations & Feedback Loop -->
+          <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+            <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <i data-lucide="git-merge" class="w-4 h-4 text-sky-400"></i>
+                <h3 class="text-sm font-bold text-white">Multi-Agent Feedback Loop Trace</h3>
+              </div>
+              
+              <!-- Attempts Tab Selector -->
+              <div id="attempts-tab-selector" class="flex items-center gap-1.5">
+                <span class="text-xs text-slate-400">Run workflow to inspect iterations</span>
+              </div>
+            </div>
+
+            <!-- Iteration Detail Panel -->
+            <div id="iteration-detail-container" class="mt-4">
+              <div class="text-center py-10 text-slate-500">
+                <i data-lucide="cpu" class="w-10 h-10 mx-auto text-slate-600 mb-2 opacity-50"></i>
+                <p class="text-xs">Click "Launch Multi-Agent Workflow" on the left to start.</p>
+                <p class="text-[11px] text-slate-600 mt-1">Writer Agent and Reviewer Agent will collaborate and loop here.</p>
+              </div>
+            </div>
+
+            <!-- Human In The Loop Refinement Box -->
+            <div id="human-refine-box" class="hidden mt-4 pt-4 border-t border-slate-800">
+              <label class="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center gap-1.5">
+                <i data-lucide="user-check" class="w-4 h-4 text-emerald-400"></i>
+                Human-in-the-Loop: Give Custom Feedback to Agents
+              </label>
+              <div class="flex gap-2">
+                <input id="human-feedback-input" type="text" placeholder="e.g. Make the hook punchier, shorten the middle paragraph, add an open question..." class="flex-1 bg-dark-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white placeholder-slate-500 outline-none focus:border-emerald-500">
+                <button onclick="submitHumanFeedback()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-md shadow-emerald-600/20">
+                  <i data-lucide="send" class="w-3.5 h-3.5"></i>
+                  <span>Refine</span>
+                </button>
+              </div>
+            </div>
+
+          </div>
+
+          <!-- Authentic LinkedIn Live Preview Card -->
+          <div class="glass-panel p-5 rounded-2xl border border-slate-800">
+            <div class="flex items-center justify-between pb-3 mb-4 border-b border-slate-800">
+              <div class="flex items-center gap-2">
+                <i data-lucide="eye" class="w-4 h-4 text-sky-400"></i>
+                <h3 class="text-sm font-bold text-white">LinkedIn Realtime Feed Preview</h3>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="copyGeneratedPost()" class="px-3 py-1.5 rounded-lg bg-dark-700 hover:bg-dark-600 text-xs font-medium text-slate-200 flex items-center gap-1.5 border border-slate-600/50 transition-all">
+                  <i data-lucide="copy" class="w-3.5 h-3.5"></i>
+                  <span>Copy Text</span>
+                </button>
+                <button onclick="savePostToDrafts()" class="px-3 py-1.5 rounded-lg bg-sky-600/20 hover:bg-sky-600/30 text-sky-400 text-xs font-medium flex items-center gap-1.5 border border-sky-500/30 transition-all">
+                  <i data-lucide="bookmark" class="w-3.5 h-3.5"></i>
+                  <span>Save Draft</span>
+                </button>
+              </div>
+            </div>
+
+            <!-- Realistic LinkedIn Post Component -->
+            <div class="linkedin-card p-4 sm:p-5 border border-gray-200">
+              
+              <!-- Post Author Header -->
+              <div class="flex items-start justify-between mb-3">
+                <div class="flex items-start gap-3">
+                  <img id="preview-avatar" src="https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80" alt="Author" class="w-12 h-12 rounded-full object-cover border border-gray-200">
+                  <div>
+                    <h4 id="preview-author-name" class="font-bold text-gray-900 text-sm leading-snug hover:text-linkedin hover:underline cursor-pointer">Mohan Sharma</h4>
+                    <p id="preview-author-headline" class="text-xs text-gray-500 leading-tight line-clamp-1 max-w-sm">Tech Educator | 150K+ LinkedIn | Founder @ Codebasics</p>
+                    <div class="flex items-center gap-1 text-[11px] text-gray-400 mt-0.5">
+                      <span>Just now</span>
+                      <span>•</span>
+                      <i data-lucide="globe" class="w-3 h-3"></i>
+                    </div>
+                  </div>
+                </div>
+
+                <button class="text-gray-400 hover:text-gray-600 p-1">
+                  <i data-lucide="more-horizontal" class="w-5 h-5"></i>
+                </button>
+              </div>
+
+              <!-- Post Body Content -->
+              <div id="preview-post-body" class="linkedin-text mb-4">
+                Your generated LinkedIn post will appear here formatted with exact line breaks, spacing, and emojis as it will look on LinkedIn.
+              </div>
+
+              <!-- Engagement Counter Bar -->
+              <div class="flex items-center justify-between py-2 border-t border-b border-gray-100 text-xs text-gray-500 mb-2">
+                <div class="flex items-center gap-1.5">
+                  <span class="flex -space-x-1">
+                    <span class="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[9px] text-white">👍</span>
+                    <span class="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center text-[9px] text-white">❤️</span>
+                    <span class="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-[9px] text-white">👏</span>
+                  </span>
+                  <span id="preview-likes-count">482 reactions</span>
+                </div>
+                <div>
+                  <span>58 comments • 14 reposts</span>
+                </div>
+              </div>
+
+              <!-- Post Interaction Buttons -->
+              <div class="flex items-center justify-between text-gray-600 pt-1 text-xs font-semibold">
+                <button class="flex items-center justify-center gap-1.5 py-1.5 px-3 rounded hover:bg-gray-100 flex-1">
+                  <i data-lucide="thumbs-up" class="w-4 h-4"></i>
+                  <span>Like</span>
+                </button>
+                <button class="flex items-center justify-center gap-1.5 py-1.5 px-3 rounded hover:bg-gray-100 flex-1">
+                  <i data-lucide="message-square" class="w-4 h-4"></i>
+                  <span>Comment</span>
+                </button>
+                <button class="flex items-center justify-center gap-1.5 py-1.5 px-3 rounded hover:bg-gray-100 flex-1">
+                  <i data-lucide="repeat" class="w-4 h-4"></i>
+                  <span>Repost</span>
+                </button>
+                <button class="flex items-center justify-center gap-1.5 py-1.5 px-3 rounded hover:bg-gray-100 flex-1">
+                  <i data-lucide="send" class="w-4 h-4"></i>
+                  <span>Send</span>
+                </button>
+              </div>
+
+            </div>
+
+            <!-- Post Analytics Bar -->
+            <div class="mt-4 grid grid-cols-2 sm:grid-cols-4 gap-3">
+              <div class="p-2.5 rounded-xl bg-dark-900 border border-slate-800 text-center">
+                <span class="text-[10px] text-slate-400 uppercase font-semibold">Characters</span>
+                <p id="stat-chars" class="text-sm font-bold text-white mt-0.5">0</p>
+              </div>
+              <div class="p-2.5 rounded-xl bg-dark-900 border border-slate-800 text-center">
+                <span class="text-[10px] text-slate-400 uppercase font-semibold">Words</span>
+                <p id="stat-words" class="text-sm font-bold text-white mt-0.5">0</p>
+              </div>
+              <div class="p-2.5 rounded-xl bg-dark-900 border border-slate-800 text-center">
+                <span class="text-[10px] text-slate-400 uppercase font-semibold">Line Count</span>
+                <p id="stat-lines" class="text-sm font-bold text-white mt-0.5">0</p>
+              </div>
+              <div class="p-2.5 rounded-xl bg-dark-900 border border-slate-800 text-center">
+                <span class="text-[10px] text-slate-400 uppercase font-semibold">Read Time</span>
+                <p id="stat-time" class="text-sm font-bold text-sky-400 mt-0.5">~30 sec</p>
+              </div>
+            </div>
+
+          </div>
+
+        </div>
+
+      </div>
+
+    </div>
+
+    <!-- TAB 2: HISTORIC POSTS VIEW (10-15 POSTS) -->
+    <div id="tab-historic" class="tab-content hidden">
+      <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i data-lucide="history" class="w-5 h-5 text-sky-400"></i>
+            Extracted Historic Posts
+            <span id="historic-count-badge" class="px-2 py-0.5 text-xs rounded-full bg-sky-500/10 text-sky-400 border border-sky-500/20">10 Posts</span>
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            These 10 to 15 posts are extracted from LinkedIn to train the Style Analyzer and provide few-shot examples to the Writer Agent.
+          </p>
+        </div>
+
+        <div class="flex items-center gap-2">
+          <button onclick="openLinkedInModal()" class="px-3.5 py-2 rounded-xl bg-sky-600 hover:bg-sky-500 text-white text-xs font-semibold flex items-center gap-2 transition-all shadow-md shadow-sky-600/20">
+            <i data-lucide="refresh-cw" class="w-3.5 h-3.5"></i>
+            <span>Sync LinkedIn Posts</span>
+          </button>
+          <button onclick="triggerStyleReanalysis()" class="px-3.5 py-2 rounded-xl bg-dark-700 hover:bg-dark-600 text-slate-200 text-xs font-semibold flex items-center gap-2 border border-slate-600/60 transition-all">
+            <i data-lucide="dna" class="w-3.5 h-3.5 text-sky-400"></i>
+            <span>Re-Analyze Style</span>
+          </button>
+        </div>
+      </div>
+
+      <!-- Filters & Search -->
+      <div class="mb-6 flex flex-wrap items-center gap-3 p-3.5 rounded-xl bg-dark-800/80 border border-slate-800">
+        <div class="flex items-center gap-2 flex-1 min-w-[200px]">
+          <i data-lucide="search" class="w-4 h-4 text-slate-400"></i>
+          <input id="historic-search" oninput="filterHistoricPosts()" type="text" placeholder="Search by keyword, topic, or hook..." class="w-full bg-transparent text-xs text-white placeholder-slate-500 outline-none">
+        </div>
+        <select id="historic-lang-filter" onchange="filterHistoricPosts()" class="bg-dark-900 border border-slate-700 rounded-lg px-2.5 py-1 text-xs text-slate-300 outline-none">
+          <option value="ALL">All Languages</option>
+          <option value="English">English</option>
+          <option value="Hinglish">Hinglish</option>
+        </select>
+        <button onclick="openAddPostModal()" class="px-3 py-1 rounded-lg bg-dark-700 hover:bg-slate-700 text-xs font-medium text-slate-300 flex items-center gap-1 border border-slate-600/50">
+          <i data-lucide="plus" class="w-3.5 h-3.5"></i>
+          <span>Add Post</span>
+        </button>
+      </div>
+
+      <!-- Posts Grid -->
+      <div id="historic-posts-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+    <!-- TAB 3: STYLE DNA VIEW -->
+    <div id="tab-style" class="tab-content hidden">
+      <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i data-lucide="dna" class="w-5 h-5 text-sky-400"></i>
+            Writing Style DNA & Persona
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Deep stylistic decomposition extracted by analyzing your 10-15 historic LinkedIn posts.
+          </p>
+        </div>
+        <button onclick="triggerStyleReanalysis()" class="px-4 py-2 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 text-white text-xs font-semibold flex items-center gap-2 shadow-md shadow-sky-600/20">
+          <i data-lucide="sparkles" class="w-3.5 h-3.5"></i>
+          <span>Re-Extract Persona</span>
+        </button>
+      </div>
+
+      <!-- Style Breakdown Grid -->
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+
+        <!-- Card 1: Persona Overview -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20">
+              <i data-lucide="user-check" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Creator Persona</span>
+              <h3 id="style-card-persona" class="text-sm font-bold text-white">Empathetic Realist & Career Coach</h3>
+            </div>
+          </div>
+          <p id="style-card-tone" class="text-xs text-slate-300 leading-relaxed">
+            Vulnerable, brutally honest, conversational, anti-corporate jargon, empathetic.
+          </p>
+          <div class="pt-2 border-t border-slate-800">
+            <span class="text-[11px] text-slate-400 font-medium">Language Blend:</span>
+            <p id="style-card-lang" class="text-xs text-sky-300 mt-0.5">Conversational English with occasional Hinglish idioms</p>
+          </div>
+        </div>
+
+        <!-- Card 2: Hook Archetype -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-xl bg-amber-500/10 text-amber-400 border border-amber-500/20">
+              <i data-lucide="zap" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Hook Formula</span>
+              <h3 class="text-sm font-bold text-white">Scroll-Stopping Opening</h3>
+            </div>
+          </div>
+          <p id="style-card-hook" class="text-xs text-slate-300 leading-relaxed">
+            Direct provocation, relatable jobseeker pain-point, or contrasting observation.
+          </p>
+          <div class="p-2.5 rounded-xl bg-dark-900 border border-slate-800 text-[11px] text-slate-400 italic">
+            Example: "Looking for jobs on LinkedIn is like online dating: Full of promises, but in the end, you’re just left ghosted."
+          </div>
+        </div>
+
+        <!-- Card 3: Formatting Anatomy -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+              <i data-lucide="layout" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Structure & Flow</span>
+              <h3 class="text-sm font-bold text-white">Whitespace Anatomy</h3>
+            </div>
+          </div>
+          <p id="style-card-structure" class="text-xs text-slate-300 leading-relaxed">
+            1-2 lines per paragraph. Generous blank line breaks. High mobile skimmability.
+          </p>
+          <div class="flex items-center justify-between text-xs pt-1 border-t border-slate-800">
+            <span class="text-slate-400">Avg. Line Count:</span>
+            <span id="style-card-avg-lines" class="font-mono font-bold text-white">6.8 lines</span>
+          </div>
+        </div>
+
+        <!-- Card 4: Emoji & Hashtag Strategy -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-xl bg-purple-500/10 text-purple-400 border border-purple-500/20">
+              <i data-lucide="hash" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Emoji & Hashtags</span>
+              <h3 class="text-sm font-bold text-white">Visual Discipline</h3>
+            </div>
+          </div>
+          <div>
+            <span class="text-[11px] text-slate-400 block font-medium">Emoji Strategy:</span>
+            <p id="style-card-emoji" class="text-xs text-slate-300 mt-0.5">Sparse and warm (1-2 maximum, e.g. 🌻, 💔).</p>
+          </div>
+          <div class="pt-2 border-t border-slate-800">
+            <span class="text-[11px] text-slate-400 block font-medium">Hashtags:</span>
+            <p id="style-card-hashtag" class="text-xs text-purple-300 mt-0.5">Zero hashtags (clean organic approach).</p>
+          </div>
+        </div>
+
+        <!-- Card 5: Call to Action (CTA) -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-xl bg-pink-500/10 text-pink-400 border border-pink-500/20">
+              <i data-lucide="message-circle" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Ending CTA</span>
+              <h3 class="text-sm font-bold text-white">Engagement Conversion</h3>
+            </div>
+          </div>
+          <p id="style-card-cta" class="text-xs text-slate-300 leading-relaxed">
+            Ends with a heartfelt encouragement or an open question prompting readers to share their stories.
+          </p>
+          <div class="p-2.5 rounded-xl bg-dark-900 border border-slate-800 text-[11px] text-slate-400 italic">
+            "Your dream job will come, but for now, breathe. 🌻"
+          </div>
+        </div>
+
+        <!-- Card 6: Signature Themes & Tags -->
+        <div class="glass-panel p-5 rounded-2xl border border-slate-800 space-y-3">
+          <div class="flex items-center gap-3">
+            <div class="p-2.5 rounded-xl bg-blue-500/10 text-blue-400 border border-blue-500/20">
+              <i data-lucide="tag" class="w-5 h-5"></i>
+            </div>
+            <div>
+              <span class="text-[10px] uppercase tracking-wider text-slate-400 font-bold">Top Themes</span>
+              <h3 class="text-sm font-bold text-white">Core Content Pillars</h3>
+            </div>
+          </div>
+          <div id="style-card-themes" class="flex flex-wrap gap-1.5 pt-1">
+            <!-- Tags injected via JS -->
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- TAB 4: DRAFTS & TRACE HISTORY -->
+    <div id="tab-drafts" class="tab-content hidden">
+      <div class="mb-6 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div>
+          <h2 class="text-xl font-bold text-white flex items-center gap-2">
+            <i data-lucide="layers" class="w-5 h-5 text-sky-400"></i>
+            Generated Posts & Trace History
+          </h2>
+          <p class="text-xs text-slate-400 mt-1">
+            Archive of all posts created with the multi-agent feedback loop, including drafts, reviewer critiques, and approval status.
+          </p>
+        </div>
+      </div>
+
+      <!-- Drafts Table / Cards -->
+      <div id="drafts-container" class="space-y-4">
+        <!-- Injected via JavaScript -->
+      </div>
+    </div>
+
+  </main>
+
+  <!-- AUTH MODAL (Login / Register / 1-Click Demo) -->
+  <div id="auth-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-md p-6 sm:p-8 rounded-3xl border border-slate-700 shadow-2xl relative">
+      
+      <!-- Close button -->
+      <button onclick="closeAuthModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="text-center mb-6">
+        <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 to-blue-600 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-sky-500/20">
+          <i data-lucide="sparkles" class="w-6 h-6 text-white"></i>
+        </div>
+        <h3 class="text-xl font-bold text-white">Welcome to PostMimic</h3>
+        <p class="text-xs text-slate-400 mt-1">LinkedIn style cloner & autonomous multi-agent generator</p>
+      </div>
+
+      <!-- 1-Click Demo Button -->
+      <div class="mb-5 p-3 rounded-2xl bg-gradient-to-r from-sky-950/60 to-blue-950/60 border border-sky-500/30">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-xs font-bold text-sky-300 flex items-center gap-1.5">
+            <i data-lucide="play" class="w-3.5 h-3.5"></i>
+            Instant Experience
+          </span>
+          <span class="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full font-semibold">Ready to Use</span>
+        </div>
+        <p class="text-[11px] text-slate-300 mb-3">Login as Mohan Sharma with 10 historic LinkedIn posts and style persona pre-loaded.</p>
+        <button onclick="loginDemo()" class="w-full py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs transition-all flex items-center justify-center gap-2 shadow-md shadow-sky-600/20">
+          <i data-lucide="user-check" class="w-4 h-4"></i>
+          <span>1-Click Demo Login</span>
+        </button>
+      </div>
+
+      <!-- Divider -->
+      <div class="relative my-4 text-center">
+        <div class="absolute inset-0 flex items-center"><div class="w-full border-t border-slate-800"></div></div>
+        <span class="relative px-3 bg-dark-850 text-[11px] uppercase tracking-wider text-slate-500">Or use account</span>
+      </div>
+
+      <!-- Auth Tabs -->
+      <div class="flex rounded-xl bg-dark-900 p-1 mb-4 border border-slate-800">
+        <button onclick="toggleAuthForm('login')" id="auth-tab-login" class="flex-1 py-1.5 text-xs font-semibold rounded-lg bg-dark-700 text-white">Sign In</button>
+        <button onclick="toggleAuthForm('register')" id="auth-tab-register" class="flex-1 py-1.5 text-xs font-semibold rounded-lg text-slate-400">Register</button>
+      </div>
+
+      <!-- Login Form -->
+      <form id="form-login" onsubmit="handleLogin(event)" class="space-y-3">
+        <div>
+          <label class="block text-xs text-slate-300 mb-1">Email</label>
+          <input id="login-email" type="email" required placeholder="you@example.com" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-300 mb-1">Password</label>
+          <input id="login-password" type="password" required placeholder="••••••••" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500">
+        </div>
+        <button type="submit" class="w-full mt-2 py-2.5 rounded-xl bg-dark-700 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-600 transition-all">
+          Sign In
+        </button>
+      </form>
+
+      <!-- Register Form -->
+      <form id="form-register" onsubmit="handleRegister(event)" class="space-y-3 hidden">
+        <div>
+          <label class="block text-xs text-slate-300 mb-1">Full Name</label>
+          <input id="reg-name" type="text" required placeholder="e.g. Alex Rivera" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-300 mb-1">Email</label>
+          <input id="reg-email" type="email" required placeholder="you@example.com" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-300 mb-1">Password</label>
+          <input id="reg-password" type="password" required placeholder="••••••••" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500">
+        </div>
+        <div>
+          <label class="block text-xs text-slate-300 mb-1">LinkedIn Profile URL</label>
+          <input id="reg-linkedin" type="url" placeholder="https://linkedin.com/in/username" class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500">
+        </div>
+        <button type="submit" class="w-full mt-2 py-2.5 rounded-xl bg-sky-600 hover:bg-sky-500 text-white font-semibold text-xs transition-all shadow-md shadow-sky-600/20">
+          Create Account & Extract Posts
+        </button>
+      </form>
+
+    </div>
+  </div>
+
+  <!-- CONNECT LINKEDIN MODAL -->
+  <div id="linkedin-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-lg p-6 sm:p-8 rounded-3xl border border-slate-700 shadow-2xl relative">
+      
+      <button onclick="closeLinkedInModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+
+      <div class="flex items-center gap-3 mb-4">
+        <div class="p-3 rounded-2xl bg-sky-600/20 text-sky-400 border border-sky-500/30">
+          <i data-lucide="linkedin" class="w-6 h-6"></i>
+        </div>
+        <div>
+          <h3 class="text-lg font-bold text-white">Connect LinkedIn & Extract Posts</h3>
+          <p class="text-xs text-slate-400">Extract 10 to 15 posts to clone your writing style DNA</p>
+        </div>
+      </div>
+
+      <div class="space-y-4">
+        
+        <!-- Option 1: Profile URL -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Enter LinkedIn Profile URL</label>
+          <div class="flex gap-2">
+            <input id="li-input-url" type="text" placeholder="https://www.linkedin.com/in/your-profile" class="flex-1 bg-dark-900 border border-slate-700 rounded-xl px-3.5 py-2 text-xs text-white outline-none focus:border-sky-500">
+            <button onclick="extractFromUrl()" class="px-4 py-2 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold">
+              Extract
+            </button>
+          </div>
+        </div>
+
+        <!-- Option 2: Instant Persona Presets -->
+        <div>
+          <span class="block text-xs font-semibold text-slate-300 mb-2">Or Choose an Instant Influencer Preset:</span>
+          <div class="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
+            
+            <button onclick="loadPreset('tech_educator')" class="p-3 rounded-xl bg-dark-900 hover:bg-dark-750 border border-slate-800 hover:border-sky-500 text-left transition-all">
+              <span class="text-xs font-bold text-white block">Mohan Sharma</span>
+              <span class="text-[10px] text-sky-400 block mt-0.5">Tech Educator</span>
+              <span class="text-[10px] text-slate-400 block">10 Real Posts</span>
+            </button>
+
+            <button onclick="loadPreset('ai_founder')" class="p-3 rounded-xl bg-dark-900 hover:bg-dark-750 border border-slate-800 hover:border-sky-500 text-left transition-all">
+              <span class="text-xs font-bold text-white block">Sarah Chen</span>
+              <span class="text-[10px] text-emerald-400 block mt-0.5">AI Founder</span>
+              <span class="text-[10px] text-slate-400 block">10 AI Agent Posts</span>
+            </button>
+
+            <button onclick="loadPreset('growth_creator')" class="p-3 rounded-xl bg-dark-900 hover:bg-dark-750 border border-slate-800 hover:border-sky-500 text-left transition-all">
+              <span class="text-xs font-bold text-white block">Arjun Mehta</span>
+              <span class="text-[10px] text-purple-400 block mt-0.5">Growth Strategist</span>
+              <span class="text-[10px] text-slate-400 block">10 B2B SaaS Posts</span>
+            </button>
+
+          </div>
+        </div>
+
+        <!-- Option 3: Manual Raw Posts Paste -->
+        <div>
+          <label class="block text-xs font-semibold text-slate-300 mb-1.5">Or Paste 10-15 Past Posts Directly</label>
+          <textarea id="li-custom-posts-text" rows="4" placeholder="Paste posts separated by '---' on a new line..." class="w-full bg-dark-900 border border-slate-700 rounded-xl px-3.5 py-2.5 text-xs text-white placeholder-slate-500 outline-none resize-none"></textarea>
+          <button onclick="importCustomPosts()" class="mt-2 w-full py-2 bg-dark-700 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-600 transition-all">
+            Import Pasted Posts & Analyze Style
+          </button>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ADD HISTORIC POST MODAL -->
+  <div id="add-post-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-md p-6 rounded-3xl border border-slate-700 relative">
+      <button onclick="closeAddPostModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h3 class="text-base font-bold text-white mb-3">Add Historic LinkedIn Post</h3>
+      <div class="space-y-3">
+        <textarea id="add-post-text" rows="5" placeholder="Paste your past post here..." class="w-full bg-dark-900 border border-slate-700 rounded-xl p-3 text-xs text-white outline-none focus:border-sky-500"></textarea>
+        <div class="grid grid-cols-2 gap-3">
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Estimated Likes</label>
+            <input id="add-post-likes" type="number" value="150" class="w-full bg-dark-900 border border-slate-700 rounded-xl p-2 text-xs text-white outline-none">
+          </div>
+          <div>
+            <label class="block text-[11px] text-slate-400 mb-1">Language</label>
+            <select id="add-post-lang" class="w-full bg-dark-900 border border-slate-700 rounded-xl p-2 text-xs text-white outline-none">
+              <option value="English">English</option>
+              <option value="Hinglish">Hinglish</option>
+            </select>
+          </div>
+        </div>
+        <button onclick="submitNewHistoricPost()" class="w-full py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold transition-all">
+          Save Historic Post
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- USER PROFILE MODAL -->
+  <div id="profile-modal" class="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 hidden">
+    <div class="glass-panel w-full max-w-md p-6 rounded-3xl border border-slate-700 relative">
+      <button onclick="closeProfileModal()" class="absolute top-5 right-5 text-slate-400 hover:text-white">
+        <i data-lucide="x" class="w-5 h-5"></i>
+      </button>
+      <h3 class="text-base font-bold text-white mb-4">Edit Profile & LinkedIn Details</h3>
+      <div class="space-y-3">
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">Full Name</label>
+          <input id="prof-name" type="text" class="w-full bg-dark-900 border border-slate-700 rounded-xl p-2 text-xs text-white outline-none">
+        </div>
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">LinkedIn Headline</label>
+          <input id="prof-headline" type="text" class="w-full bg-dark-900 border border-slate-700 rounded-xl p-2 text-xs text-white outline-none">
+        </div>
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">Avatar Image URL</label>
+          <input id="prof-avatar" type="url" class="w-full bg-dark-900 border border-slate-700 rounded-xl p-2 text-xs text-white outline-none">
+        </div>
+        <div>
+          <label class="block text-[11px] text-slate-400 mb-1">LinkedIn Profile URL</label>
+          <input id="prof-linkedin" type="url" class="w-full bg-dark-900 border border-slate-700 rounded-xl p-2 text-xs text-white outline-none">
+        </div>
+        <button onclick="submitProfileUpdate()" class="w-full py-2.5 bg-sky-600 hover:bg-sky-500 text-white rounded-xl text-xs font-semibold transition-all">
+          Update Profile
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- TOAST CONTAINER -->
+  <div id="toast-container"></div>
+
+  <!-- Application Logic -->
+  <script src="/static/app.js"></script>
+</body>
+</html>
