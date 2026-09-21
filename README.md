@@ -1,107 +1,111 @@
 # PostMimic - LinkedIn Style Cloner & Multi-Agent Studio
 
-**PostMimic** is an end-to-end web application that connects to a user's LinkedIn profile, extracts 10–15 historic posts, analyzes their distinct writing style DNA, and uses an autonomous **multi-agent feedback loop** (Writer Agent + Reviewer Critic Agent + Loop Controller) to draft and iteratively polish publish-ready LinkedIn posts.
+**PostMimic** connects to a user's LinkedIn profile (or demo presets), extracts historic posts, analyzes writing style DNA, and runs a **multi-agent feedback loop** (Writer + Reviewer + loop controller) to draft publish-ready LinkedIn posts.
+
+The stack is split into a **Next.js** frontend and a **Python (FastAPI)** API backend.
 
 ---
 
-## 🌟 Key Features
+## Key Features
 
-1. **User Authentication & Profiles**:
-   - Secure login & registration with PBKDF2-HMAC-SHA256 password hashing.
-   - **1-Click Demo Login** pre-loaded with Mohan Sharma's 10 viral LinkedIn posts and trained Style Persona.
-   - Profile management: Custom avatar, headline, bio, follower count, and vanity URL.
-
-2. **LinkedIn Connection & Historic Posts Extraction**:
-   - Extracts 10 to 15 historic posts via profile URL, custom paste, or influencer presets (*Mohan Sharma - Tech Educator*, *Sarah Chen - AI Founder*, *Arjun Mehta - Growth Strategist*).
-   - Shows engagement reactions (👍, ❤️, 👏), line count, detected language (English / Hinglish), and topic tags.
-
-3. **Writing Style DNA & Persona Cloner**:
-   - Deep LLM-powered style analysis extracting:
-     - **Persona Archetype**: Title, tone nuances, and voice traits.
-     - **Hook Formula**: First-line pattern that stops the scroll.
-     - **Structure & Whitespace Anatomy**: Paragraph spacing, average line count, mobile skimmability.
-     - **Visual Discipline**: Emoji placement and hashtag policy.
-     - **Ending CTA**: Conversion and comment-sparking questions.
-
-4. **Multi-Agent Workflow with Iterative Feedback Loop (`PostDraft` Integration)**:
-   - **Agent 1 (Persona & Few-Shot Agent)**: Injects creator's Style DNA and retrieves the top 2 matching historic posts.
-   - **Agent 2 (Writer Agent)**: Drafts the post matching the creator's exact style. On revision attempts, systematically addresses every critique from the reviewer.
-   - **Agent 3 (Reviewer Agent)**: Rigorous editorial critic evaluating hook strength, takeaway value, line spacing, length, authenticity, and CTA. Outputs `VERDICT: APPROVED | REJECTED`, score, and actionable feedback.
-   - **Feedback Loop Controller**: If rejected, routes back to Writer Agent with specific critique; loops up to 3 attempts until approved.
-   - **Interactive Step-by-Step Trace**: Tabbed visual stepper displaying Draft 1, Reviewer Critique, and Revision Draft 2.
-
-5. **Human-in-the-Loop Refinement**:
-   - Users can provide custom instructions (*"Make the hook punchier"*, *"Add an anecdote"*) to trigger immediate agent revisions.
-
-6. **Authentic LinkedIn Live Preview**:
-   - Realistic replica of LinkedIn mobile/desktop feed card with author header, timestamp, formatted post body, and engagement buttons.
-   - One-click copy with preserved formatting, export to TXT/Markdown, and draft history saving.
+1. **Authentication & profiles** — PBKDF2 password hashing, demo login, profile management.
+2. **LinkedIn historic posts** — URL, presets, or custom paste; engagement and style metadata.
+3. **Style DNA** — LLM persona analysis (hooks, structure, emoji/hashtag policy, CTAs).
+4. **Multi-agent studio** — Writer/reviewer loop with trace UI and human-in-the-loop refinement.
+5. **LinkedIn preview** — Feed-style card, copy/export, draft history.
 
 ---
 
-## 🚀 Quick Start
+## Quick Start
 
-### 1. Requirements & Environment
-Ensure your `.env` contains your `GROQ_API_KEY`:
+### 1. Environment
+
+Create `.env` at the repo root:
+
 ```env
 GROQ_API_KEY=gsk_your_groq_api_key
 ```
 
-### 2. Launching the Web Application
-Run the launcher script using Python:
+Optional:
+
+```env
+PORT=8080
+CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+```
+
+### 2. Start the app
+
 ```bash
+pip install -r requirements.txt
 python run.py
 ```
-*Or double click `start.bat` on Windows.*
 
-The app will start at:
-👉 **http://localhost:8080**  
-*(API documentation available at http://localhost:8080/docs)*
+Or double-click **`start.bat`** on Windows.
+
+This starts **both** the FastAPI API and the Next.js dev server, opens the UI in your browser, and runs `npm install` in `frontend/` on first launch if needed.
+
+- UI: **http://localhost:3000**
+- API: **http://localhost:8080**
+- OpenAPI: **http://localhost:8080/docs**
+
+Optional env: `FRONTEND_PORT`, `PORT`, `API_PROXY_TARGET` (set automatically by `run.py` when the API port changes).
+
+The Next.js dev server proxies `/api/*` and `/health` to the backend (see `frontend/next.config.mjs`).
+
+**API only** (if Node.js is missing): `run.py` still starts the API; run `cd frontend && npm run dev` separately for the UI.
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 PostMimic/
-├── app/
-│   ├── config.py             # App configuration and model settings
-│   ├── db.py                 # SQLite database and schema migrations
-│   ├── auth.py               # User sessions and PBKDF2 password security
-│   ├── linkedin_service.py   # LinkedIn post extractor and influencer presets
-│   ├── style_analyzer.py     # LLM style decomposition & persona cloner
-│   ├── agent_workflow.py     # Multi-agent feedback loop (Writer + Reviewer + Controller)
-│   └── main.py               # FastAPI REST API endpoints & React SPA serving
-├── frontend/                 # Modern React 18 + Vite + Tailwind CSS Application
-│   ├── src/
-│   │   ├── api/client.js     # Unified typed API client
-│   │   ├── components/
-│   │   │   ├── studio/       # Agent Studio, Controls, Pipeline trace, LinkedIn Preview
-│   │   │   ├── historic/     # Historic posts grid, filters, and add post modal
-│   │   │   ├── style/        # Style DNA persona inspection cards
-│   │   │   ├── drafts/       # Saved drafts & history archive
-│   │   │   └── modals/       # Auth, LinkedIn presets, and Profile modals
-│   │   ├── App.jsx           # Main React root application
-│   │   └── index.css         # Tailwind & custom LinkedIn feed styles
-│   ├── dist/                 # Production compiled bundle (served by FastAPI)
-│   ├── package.json          # Frontend dependencies & build scripts
-│   └── vite.config.js        # Vite build & development proxy configuration
-├── run.py                    # Server launcher & auto-browser opener
-├── server.py                 # Uvicorn FastAPI runner
-├── postmimic.db              # SQLite database (auto-created)
-└── requirements.txt          # Python dependencies
+├── backend/                      # Python API
+│   ├── app/
+│   │   ├── main.py               # FastAPI app factory, CORS, router mount
+│   │   ├── config.py             # Env, DB path, CORS origins
+│   │   ├── db.py                 # SQLite schema & migrations
+│   │   ├── auth.py               # Sessions & password security
+│   │   ├── routers/              # HTTP layer (thin controllers)
+│   │   │   ├── auth.py
+│   │   │   ├── profile.py
+│   │   │   ├── linkedin.py
+│   │   │   ├── posts.py
+│   │   │   ├── style.py
+│   │   │   ├── generation.py
+│   │   │   └── drafts.py
+│   │   ├── schemas/              # Pydantic request/response models
+│   │   ├── services/             # App-specific persistence helpers
+│   │   ├── linkedin_service.py   # Post extraction & presets
+│   │   ├── style_analyzer.py     # Style DNA LLM pipeline
+│   │   └── agent_workflow.py     # Multi-agent loop
+│   └── requirements.txt
+├── data/                         # Preset datasets (raw & processed posts for demo seeding)
+├── frontend/                     # Next.js 15 (App Router)
+│   ├── src/app/                  # layout, page, global styles
+│   ├── src/components/           # UI (studio, historic, modals, …)
+│   └── src/lib/api/client.js     # Typed fetch client
+├── run.py                        # API launcher (adds backend/ to PYTHONPATH)
+├── postmimic.db                  # SQLite (created at repo root)
+└── requirements.txt              # Points to backend/requirements.txt
 ```
+
+**Design notes**
+
+- **Frontend / backend separation** — No static SPA bundle served from FastAPI; CORS + Next rewrites in dev.
+- **Routers vs services** — Routes validate auth and delegate; reusable DB logic lives in `services/` and domain modules.
 
 ---
 
-## 🧪 Testing the API
+## Testing the API
 
-Run the automated integration test suite:
 ```bash
-python -c "
-from starlette.testclient import TestClient
-from app.main import app
-client = TestClient(app)
-print(client.get('/health').json())
-"
+set PYTHONPATH=backend
+python -c "from starlette.testclient import TestClient; from app.main import app; c=TestClient(app); print(c.get('/health').json())"
+```
+
+On Unix:
+
+```bash
+PYTHONPATH=backend python -c "from starlette.testclient import TestClient; from app.main import app; c=TestClient(app); print(c.get('/health').json())"
 ```

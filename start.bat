@@ -1,7 +1,8 @@
 @echo off
 title PostMimic - LinkedIn Style Cloner
 echo =========================================================
-echo Starting PostMimic End-to-End Web App...
+echo Starting PostMimic (API + Next.js UI)...
 echo =========================================================
-call C:\Users\shoai\anaconda3\envs\common\python.exe run.py
+cd /d "%~dp0"
+python run.py
 pause

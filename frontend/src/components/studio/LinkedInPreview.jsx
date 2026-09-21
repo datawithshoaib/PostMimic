@@ -18,7 +18,6 @@ import {
   CheckCircle2,
   AlertTriangle
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
 
 export default function LinkedInPreview({
   postText,
@@ -47,13 +46,21 @@ export default function LinkedInPreview({
   // Handle Copy
   const handleCopy = () => {
     if (isPlaceholder) return;
-    navigator.clipboard.writeText(content).then(() => {
+    navigator.clipboard.writeText(content).then(async () => {
       setCopied(true);
-      confetti({
-        particleCount: 50,
-        spread: 60,
-        origin: { y: 0.7 }
-      });
+      try {
+        const confettiModule = await import('canvas-confetti');
+        const confetti = confettiModule.default || confettiModule;
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 50,
+            spread: 60,
+            origin: { y: 0.7 }
+          });
+        }
+      } catch (err) {
+        // Confetti is purely decorative
+      }
       if (onCopySuccess) onCopySuccess();
       setTimeout(() => setCopied(false), 2500);
     });

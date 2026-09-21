@@ -12,8 +12,6 @@ import {
   Inbox,
   Calendar
 } from 'lucide-react';
-import confetti from 'canvas-confetti';
-
 export default function DraftsTab({
   drafts,
   onLoadDraft,
@@ -23,13 +21,21 @@ export default function DraftsTab({
   const [copiedId, setCopiedId] = useState(null);
 
   const handleCopy = (id, text) => {
-    navigator.clipboard.writeText(text).then(() => {
+    navigator.clipboard.writeText(text).then(async () => {
       setCopiedId(id);
-      confetti({
-        particleCount: 40,
-        spread: 50,
-        origin: { y: 0.7 }
-      });
+      try {
+        const confettiModule = await import('canvas-confetti');
+        const confetti = confettiModule.default || confettiModule;
+        if (typeof confetti === 'function') {
+          confetti({
+            particleCount: 40,
+            spread: 50,
+            origin: { y: 0.7 }
+          });
+        }
+      } catch (err) {
+        // Confetti is purely decorative
+      }
       if (onCopySuccess) onCopySuccess();
       setTimeout(() => setCopiedId(null), 2500);
     });

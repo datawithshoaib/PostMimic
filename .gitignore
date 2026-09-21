@@ -157,6 +157,7 @@ cython_debug/
 node_modules/
 frontend/node_modules/
 frontend/dist/
+frontend/.next/
 frontend/.vite/
 .npm/
 .npmrc

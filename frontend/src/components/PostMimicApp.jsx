@@ -1,60 +1,55 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import Navbar from './components/Navbar';
-import ToastContainer from './components/Toast';
-import StudioTab from './components/studio/StudioTab';
-import HistoricTab from './components/historic/HistoricTab';
-import StyleTab from './components/style/StyleTab';
-import DraftsTab from './components/drafts/DraftsTab';
+"use client";
 
-import AuthModal from './components/modals/AuthModal';
-import LinkedInModal from './components/modals/LinkedInModal';
-import ProfileModal from './components/modals/ProfileModal';
-import AddPostModal from './components/historic/AddPostModal';
+import { useState, useEffect, useCallback } from "react";
+import Navbar from "@/components/Navbar";
+import ToastContainer from "@/components/Toast";
+import StudioTab from "@/components/studio/StudioTab";
+import HistoricTab from "@/components/historic/HistoricTab";
+import StyleTab from "@/components/style/StyleTab";
+import DraftsTab from "@/components/drafts/DraftsTab";
+import AuthModal from "@/components/modals/AuthModal";
+import LinkedInModal from "@/components/modals/LinkedInModal";
+import ProfileModal from "@/components/modals/ProfileModal";
+import AddPostModal from "@/components/historic/AddPostModal";
+import {
+  authApi,
+  profileApi,
+  linkedinApi,
+  postsApi,
+  styleApi,
+  generateApi,
+  getToken,
+  setToken,
+  removeToken,
+} from "@/lib/api/client";
 
-import { 
-  authApi, 
-  profileApi, 
-  linkedinApi, 
-  postsApi, 
-  styleApi, 
-  generateApi, 
-  getToken, 
-  setToken, 
-  removeToken 
-} from './api/client';
-
-export default function App() {
-  // Global State
+export default function PostMimicApp() {
   const [user, setUser] = useState(null);
-  const [currentTab, setCurrentTab] = useState('studio');
+  const [currentTab, setCurrentTab] = useState("studio");
   const [historicPosts, setHistoricPosts] = useState([]);
   const [styleProfile, setStyleProfile] = useState(null);
   const [drafts, setDrafts] = useState([]);
 
-  // Multi-Agent Studio State
-  const [topic, setTopic] = useState('');
-  const [length, setLength] = useState('Medium');
-  const [language, setLanguage] = useState('English');
+  const [topic, setTopic] = useState("");
+  const [length, setLength] = useState("Medium");
+  const [language, setLanguage] = useState("English");
   const [maxAttempts, setMaxAttempts] = useState(3);
   const [currentPost, setCurrentPost] = useState(null);
   const [activeAttemptIndex, setActiveAttemptIndex] = useState(0);
 
-  // Loading States
   const [isGenerating, setIsGenerating] = useState(false);
   const [isRefining, setIsRefining] = useState(false);
   const [isReanalyzing, setIsReanalyzing] = useState(false);
   const [isModalSubmitting, setIsModalSubmitting] = useState(false);
 
-  // Modals
   const [authModalOpen, setAuthModalOpen] = useState(false);
   const [linkedinModalOpen, setLinkedinModalOpen] = useState(false);
   const [profileModalOpen, setProfileModalOpen] = useState(false);
   const [addPostModalOpen, setAddPostModalOpen] = useState(false);
 
-  // Toast Notifications
   const [toasts, setToasts] = useState([]);
 
-  const addToast = useCallback((message, type = 'info') => {
+  const addToast = useCallback((message, type = "info") => {
     const id = Date.now() + Math.random();
     setToasts((prev) => [...prev, { id, message, type }]);
     setTimeout(() => {
@@ -66,13 +61,12 @@ export default function App() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Data Loading
   const loadAllData = useCallback(async () => {
     try {
       const [hRes, sRes, dRes] = await Promise.all([
         postsApi.getHistoric(),
         styleApi.getStyle(),
-        generateApi.getDrafts()
+        generateApi.getDrafts(),
       ]);
       setHistoricPosts(hRes.posts || []);
       setStyleProfile(sRes.style || null);
@@ -82,26 +76,27 @@ export default function App() {
     }
   }, []);
 
-  // Demo Login Handler
-  const handleDemoLogin = useCallback(async (showToast = true) => {
-    setIsModalSubmitting(true);
-    try {
-      const data = await authApi.demoLogin();
-      setToken(data.user.token);
-      setUser(data.user);
-      setAuthModalOpen(false);
-      if (showToast) {
-        addToast("Logged into Mohan Sharma (Tech Mentor Demo)", "success");
+  const handleDemoLogin = useCallback(
+    async (showToast = true) => {
+      setIsModalSubmitting(true);
+      try {
+        const data = await authApi.demoLogin();
+        setToken(data.user.token);
+        setUser(data.user);
+        setAuthModalOpen(false);
+        if (showToast) {
+          addToast("Logged into Mohan Sharma (Tech Mentor Demo)", "success");
+        }
+        await loadAllData();
+      } catch (err) {
+        addToast(err.message, "error");
+      } finally {
+        setIsModalSubmitting(false);
       }
-      await loadAllData();
-    } catch (err) {
-      addToast(err.message, "error");
-    } finally {
-      setIsModalSubmitting(false);
-    }
-  }, [addToast, loadAllData]);
+    },
+    [addToast, loadAllData],
+  );
 
-  // Initial Auth Check
   useEffect(() => {
     async function init() {
       const token = getToken();
@@ -115,14 +110,12 @@ export default function App() {
           await handleDemoLogin(false);
         }
       } else {
-        // Auto-login to demo account so user can immediately experience the studio
         await handleDemoLogin(false);
       }
     }
     init();
   }, [handleDemoLogin, loadAllData]);
 
-  // Auth Handlers
   const handleLogin = async (email, password) => {
     setIsModalSubmitting(true);
     try {
@@ -162,7 +155,6 @@ export default function App() {
     setAuthModalOpen(true);
   };
 
-  // Profile Update
   const handleUpdateProfile = async (payload) => {
     setIsModalSubmitting(true);
     try {
@@ -178,7 +170,6 @@ export default function App() {
     }
   };
 
-  // LinkedIn Presets & Extraction
   const handleLinkedInUrlExtract = async (linkedin_url) => {
     setIsModalSubmitting(true);
     try {
@@ -223,7 +214,6 @@ export default function App() {
     }
   };
 
-  // Historic Posts Handlers
   const handleAddHistoricPost = async (payload) => {
     setIsModalSubmitting(true);
     try {
@@ -254,13 +244,12 @@ export default function App() {
   };
 
   const handleUseTopicFromHistoric = (postText) => {
-    const firstLine = postText.split('\n')[0].substring(0, 100);
+    const firstLine = postText.split("\n")[0].substring(0, 100);
     setTopic(firstLine);
-    setCurrentTab('studio');
+    setCurrentTab("studio");
     addToast("Topic loaded into Studio from historic post!", "info");
   };
 
-  // Style Re-analysis Handler
   const handleReanalyzeStyle = async () => {
     setIsReanalyzing(true);
     try {
@@ -274,7 +263,6 @@ export default function App() {
     }
   };
 
-  // Multi-Agent Generation
   const handleGenerate = async () => {
     if (!topic.trim() || isGenerating) return;
 
@@ -284,20 +272,25 @@ export default function App() {
         topic: topic.trim(),
         length,
         language,
-        max_attempts: maxAttempts
+        max_attempts: maxAttempts,
       });
 
       const generatedData = res.data;
       setCurrentPost(generatedData);
       setActiveAttemptIndex((generatedData.trace || []).length - 1);
 
-      // Reload drafts list in background
-      generateApi.getDrafts().then(d => setDrafts(d.drafts || []));
+      generateApi.getDrafts().then((d) => setDrafts(d.drafts || []));
 
       if (generatedData.is_approved) {
-        addToast(`Post Approved after ${generatedData.total_attempts} iteration(s)!`, "success");
+        addToast(
+          `Post Approved after ${generatedData.total_attempts} iteration(s)!`,
+          "success",
+        );
       } else {
-        addToast(`Completed ${generatedData.total_attempts} iteration loops. Review ready!`, "info");
+        addToast(
+          `Completed ${generatedData.total_attempts} iteration loops. Review ready!`,
+          "info",
+        );
       }
     } catch (err) {
       addToast(err.message, "error");
@@ -306,7 +299,6 @@ export default function App() {
     }
   };
 
-  // Human-in-the-Loop Refine
   const handleRefine = async (feedback) => {
     if (!currentPost || isRefining) return;
 
@@ -316,7 +308,7 @@ export default function App() {
       const updated = res.data;
       setCurrentPost(updated);
       setActiveAttemptIndex((updated.trace || []).length - 1);
-      generateApi.getDrafts().then(d => setDrafts(d.drafts || []));
+      generateApi.getDrafts().then((d) => setDrafts(d.drafts || []));
       addToast("Writer & Reviewer revised post with your feedback!", "success");
     } catch (err) {
       addToast(err.message, "error");
@@ -325,11 +317,10 @@ export default function App() {
     }
   };
 
-  // Drafts Handlers
   const handleLoadDraft = (draft) => {
     setCurrentPost(draft);
     setActiveAttemptIndex((draft.trace || []).length - 1);
-    setCurrentTab('studio');
+    setCurrentTab("studio");
     addToast("Loaded draft into Studio with full iteration trace!", "info");
   };
 
@@ -350,8 +341,6 @@ export default function App() {
 
   return (
     <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col font-sans selection:bg-sky-500 selection:text-white">
-      
-      {/* Top Navigation Bar */}
       <Navbar
         user={user}
         currentTab={currentTab}
@@ -365,9 +354,8 @@ export default function App() {
         onDemoLogin={() => handleDemoLogin(true)}
       />
 
-      {/* Main Content Area */}
       <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {currentTab === 'studio' && (
+        {currentTab === "studio" && (
           <StudioTab
             topic={topic}
             setTopic={setTopic}
@@ -387,15 +375,17 @@ export default function App() {
             isRefining={isRefining}
             onSaveDraft={() => {
               addToast("Post safely archived in your Drafts & History tab!", "success");
-              setCurrentTab('drafts');
+              setCurrentTab("drafts");
             }}
             personaTitle={styleProfile?.persona_name}
             onSwitchTab={setCurrentTab}
-            onCopySuccess={() => addToast("Post copied to clipboard with exact line breaks!", "success")}
+            onCopySuccess={() =>
+              addToast("Post copied to clipboard with exact line breaks!", "success")
+            }
           />
         )}
 
-        {currentTab === 'historic' && (
+        {currentTab === "historic" && (
           <HistoricTab
             historicPosts={historicPosts}
             onUseTopic={handleUseTopicFromHistoric}
@@ -407,7 +397,7 @@ export default function App() {
           />
         )}
 
-        {currentTab === 'style' && (
+        {currentTab === "style" && (
           <StyleTab
             styleProfile={styleProfile}
             onReanalyzeStyle={handleReanalyzeStyle}
@@ -415,7 +405,7 @@ export default function App() {
           />
         )}
 
-        {currentTab === 'drafts' && (
+        {currentTab === "drafts" && (
           <DraftsTab
             drafts={drafts}
             onLoadDraft={handleLoadDraft}
@@ -425,7 +415,6 @@ export default function App() {
         )}
       </main>
 
-      {/* Modals */}
       <AuthModal
         isOpen={authModalOpen}
         onClose={() => setAuthModalOpen(false)}
@@ -459,9 +448,7 @@ export default function App() {
         isSubmitting={isModalSubmitting}
       />
 
-      {/* Toast Notifications */}
       <ToastContainer toasts={toasts} removeToast={removeToast} />
-
     </div>
   );
 }
