@@ -1,13 +1,21 @@
 import React, { useState } from 'react';
-import { X, Plus, Sparkles } from 'lucide-react';
+import { Plus, Sparkles } from 'lucide-react';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription 
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Textarea } from '@/components/ui/textarea';
 
 export default function AddPostModal({ isOpen, onClose, onAddPost, isSubmitting }) {
   const [text, setText] = useState('');
   const [engagement, setEngagement] = useState(150);
   const [language, setLanguage] = useState('English');
   const [tagsInput, setTagsInput] = useState('Career, JobSearch');
-
-  if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -29,67 +37,59 @@ export default function AddPostModal({ isOpen, onClose, onAddPost, isSubmitting 
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="glass-panel w-full max-w-lg p-6 sm:p-7 rounded-3xl border border-slate-700 shadow-2xl relative animate-in fade-in zoom-in-95">
-        
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        {/* Modal Title */}
-        <div className="flex items-center gap-3 mb-5">
-          <div className="p-2.5 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20">
-            <Plus className="w-5 h-5" />
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-lg">
+        <DialogHeader className="pb-1">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-sky-500/10 text-sky-400 border border-sky-500/20 shadow-sm">
+              <Plus className="w-5 h-5" />
+            </div>
+            <div>
+              <DialogTitle className="text-base font-bold text-white">
+                Add Historic Post Sample
+              </DialogTitle>
+              <DialogDescription className="text-xs text-slate-400">
+                Paste a high-performing past post to train your Style Persona
+              </DialogDescription>
+            </div>
           </div>
-          <div>
-            <h3 className="text-base font-bold text-white">Add Historic Post Sample</h3>
-            <p className="text-xs text-slate-400">
-              Paste a high-performing past post to train your Style Persona
-            </p>
-          </div>
-        </div>
+        </DialogHeader>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1.5">
+        <form onSubmit={handleSubmit} className="space-y-4 pt-1">
+          <div className="space-y-1.5">
+            <label className="text-xs font-semibold text-slate-300">
               LinkedIn Post Content
             </label>
-            <textarea
+            <Textarea
               rows={6}
               value={text}
               onChange={(e) => setText(e.target.value)}
               placeholder="Paste your past LinkedIn post text here with its original spacing and line breaks..."
               required
-              className="w-full bg-[#090e1c] border border-slate-700 rounded-xl p-3 text-xs sm:text-sm text-white placeholder-slate-500 outline-none focus:border-sky-500 transition-all resize-none shadow-inner"
+              className="text-xs leading-relaxed font-sans"
             />
           </div>
 
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-300">
                 Estimated Reactions (Likes)
               </label>
-              <input
+              <Input
                 type="number"
                 value={engagement}
                 onChange={(e) => setEngagement(e.target.value)}
-                className="w-full bg-[#090e1c] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500"
               />
             </div>
 
-            <div>
-              <label className="block text-xs font-semibold text-slate-300 mb-1">
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-300">
                 Language
               </label>
               <select
                 value={language}
                 onChange={(e) => setLanguage(e.target.value)}
-                className="w-full bg-[#090e1c] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500"
+                className="w-full bg-[#090e1c] border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500 h-9"
               >
                 <option value="English">English</option>
                 <option value="Hinglish">Hinglish</option>
@@ -97,30 +97,30 @@ export default function AddPostModal({ isOpen, onClose, onAddPost, isSubmitting 
             </div>
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-slate-300">
               Topic Tags (comma-separated)
             </label>
-            <input
+            <Input
               type="text"
               value={tagsInput}
               onChange={(e) => setTagsInput(e.target.value)}
               placeholder="Career, AI, Motivation, Leadership"
-              className="w-full bg-[#090e1c] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500"
             />
           </div>
 
-          <button
+          <Button
             type="submit"
+            variant="gradient"
+            size="default"
             disabled={!text.trim() || isSubmitting}
-            className="w-full mt-2 py-3 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-xs sm:text-sm transition-all shadow-lg shadow-sky-500/25 flex items-center justify-center gap-2"
+            className="w-full mt-2 font-bold gap-2"
           >
             <Sparkles className="w-4 h-4" />
             <span>{isSubmitting ? 'Saving & Analyzing...' : 'Add Sample & Retrain Style DNA'}</span>
-          </button>
+          </Button>
         </form>
-
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

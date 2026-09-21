@@ -1,5 +1,15 @@
 import React, { useState, useEffect } from 'react';
-import { X, User, Check } from 'lucide-react';
+import { User, Check, Sparkles } from 'lucide-react';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription 
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
 
 export default function ProfileModal({
   isOpen,
@@ -22,8 +32,6 @@ export default function ProfileModal({
     }
   }, [user, isOpen]);
 
-  if (!isOpen) return null;
-
   const handleSubmit = (e) => {
     e.preventDefault();
     onUpdateProfile({
@@ -35,93 +43,96 @@ export default function ProfileModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="glass-panel w-full max-w-md p-6 sm:p-7 rounded-3xl border border-slate-700 shadow-2xl relative animate-in fade-in zoom-in-95">
-        
-        {/* Close Button */}
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        <div className="flex items-center gap-3 mb-5">
-          <div className="p-2.5 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20">
-            <User className="w-5 h-5" />
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md">
+        <DialogHeader className="pb-1">
+          <div className="flex items-center gap-3">
+            <div className="p-2.5 rounded-2xl bg-sky-500/10 text-sky-400 border border-sky-500/20 shadow-sm">
+              <User className="w-5 h-5" />
+            </div>
+            <div>
+              <DialogTitle className="text-base font-bold text-white">
+                Edit Profile & Author Brand
+              </DialogTitle>
+              <DialogDescription className="text-xs text-slate-400">
+                Customize how your author info appears on LinkedIn live preview
+              </DialogDescription>
+            </div>
           </div>
-          <div>
-            <h3 className="text-base font-bold text-white">Edit Profile & Persona Brand</h3>
-            <p className="text-xs text-slate-400">
-              Customize how your author info appears on LinkedIn live preview
-            </p>
-          </div>
-        </div>
+        </DialogHeader>
 
-        <form onSubmit={handleSubmit} className="space-y-3.5">
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
-              Full Name
-            </label>
-            <input
+        <form onSubmit={handleSubmit} className="space-y-3.5 pt-1">
+          {/* Live Mini Preview */}
+          <div className="p-3 rounded-2xl bg-[#080d1a] border border-slate-800 flex items-center gap-3">
+            <Avatar className="w-10 h-10 ring-1 ring-slate-700">
+              <AvatarImage src={avatarUrl} alt={fullName} />
+              <AvatarFallback className="bg-sky-950 text-sky-300 font-bold text-xs">
+                {fullName?.slice(0, 2).toUpperCase() || 'U'}
+              </AvatarFallback>
+            </Avatar>
+            <div className="leading-tight overflow-hidden">
+              <p className="text-xs font-bold text-white truncate">
+                {fullName || 'Your Name'}
+              </p>
+              <p className="text-[11px] text-slate-400 truncate">
+                {headline || 'Your Headline or Title'}
+              </p>
+            </div>
+          </div>
+
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-slate-300">Full Name</label>
+            <Input
               type="text"
               required
               value={fullName}
               onChange={(e) => setFullName(e.target.value)}
-              className="w-full bg-[#090e1c] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500"
+              placeholder="e.g. Mohan Sharma"
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
-              LinkedIn Headline
-            </label>
-            <input
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-slate-300">LinkedIn Headline</label>
+            <Input
               type="text"
               value={headline}
               onChange={(e) => setHeadline(e.target.value)}
               placeholder="e.g. Founder @ Codebasics | 150K+ LinkedIn"
-              className="w-full bg-[#090e1c] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500"
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
-              Avatar Image URL
-            </label>
-            <input
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-slate-300">Avatar Image URL</label>
+            <Input
               type="url"
               value={avatarUrl}
               onChange={(e) => setAvatarUrl(e.target.value)}
               placeholder="https://images.unsplash.com/..."
-              className="w-full bg-[#090e1c] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500"
             />
           </div>
 
-          <div>
-            <label className="block text-xs font-semibold text-slate-300 mb-1">
-              LinkedIn Profile URL
-            </label>
-            <input
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-slate-300">LinkedIn Profile URL</label>
+            <Input
               type="url"
               value={linkedinUrl}
               onChange={(e) => setLinkedinUrl(e.target.value)}
               placeholder="https://www.linkedin.com/in/username"
-              className="w-full bg-[#090e1c] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500"
             />
           </div>
 
-          <button
+          <Button
             type="submit"
+            variant="gradient"
+            size="default"
             disabled={isLoading}
-            className="w-full mt-2 py-2.5 rounded-xl bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-semibold text-xs transition-all shadow-md shadow-sky-500/25 flex items-center justify-center gap-2"
+            className="w-full mt-2 font-bold gap-2"
           >
             <Check className="w-4 h-4" />
             <span>{isLoading ? 'Saving...' : 'Save Profile Changes'}</span>
-          </button>
+          </Button>
         </form>
-
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }

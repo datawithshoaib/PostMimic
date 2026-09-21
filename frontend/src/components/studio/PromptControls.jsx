@@ -4,14 +4,20 @@ import {
   Wand2, 
   Sparkles, 
   RefreshCw, 
-  BookOpen, 
+  Zap, 
+  ShieldCheck, 
+  Lightbulb, 
   Check, 
   ChevronRight,
-  Flame,
-  Brain,
-  ShieldCheck,
-  Zap
+  AlignLeft,
+  Globe2,
+  Cpu
 } from 'lucide-react';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import { Textarea } from '@/components/ui/textarea';
+import { Slider } from '@/components/ui/slider';
 
 const INSPIRATION_IDEAS = [
   { category: 'Career', text: 'Job rejections are actually blessings in disguise — here is why' },
@@ -46,202 +52,216 @@ export default function PromptControls({
   return (
     <div className="space-y-5">
       {/* Studio Configuration Card */}
-      <div className="glass-panel p-5 sm:p-6 rounded-2xl border border-slate-800/90 shadow-xl space-y-4">
-        
-        {/* Header */}
-        <div className="flex items-center justify-between pb-1 border-b border-slate-800/60">
-          <div className="flex items-center gap-2.5">
-            <div className="p-1.5 rounded-lg bg-sky-500/10 text-sky-400 border border-sky-500/20">
-              <Sliders className="w-4 h-4" />
+      <Card className="border-slate-800/90 shadow-2xl">
+        <CardHeader className="pb-4 border-b border-slate-800/80">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-3">
+              <div className="p-2 rounded-xl bg-sky-500/10 text-sky-400 border border-sky-500/20 shadow-sm">
+                <Sliders className="w-4 h-4" />
+              </div>
+              <div>
+                <CardTitle className="text-sm font-bold text-white flex items-center gap-2">
+                  Prompt & Agent Controls
+                </CardTitle>
+                <CardDescription className="text-[11px] text-slate-400">
+                  Direct the Writer & Reviewer agent loop
+                </CardDescription>
+              </div>
             </div>
-            <div>
-              <h2 className="text-sm font-bold text-white tracking-wide">
-                Prompt & Multi-Agent Controls
-              </h2>
-              <p className="text-[11px] text-slate-400">
-                Configure your topic and iteration parameters
-              </p>
+
+            <Badge variant="success" className="gap-1.5 font-mono text-[10px]">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+              Agent Ready
+            </Badge>
+          </div>
+        </CardHeader>
+
+        <CardContent className="pt-5 space-y-4">
+          {/* Topic Input Field */}
+          <div className="space-y-1.5">
+            <div className="flex items-center justify-between text-xs font-semibold text-slate-200">
+              <label htmlFor="topic-input" className="flex items-center gap-1.5">
+                <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
+                <span>What do you want to post about?</span>
+              </label>
+              {topic && (
+                <button
+                  type="button"
+                  onClick={() => setTopic('')}
+                  className="text-[11px] text-slate-400 hover:text-rose-300 transition-colors"
+                >
+                  Clear text
+                </button>
+              )}
             </div>
+            
+            <Textarea
+              id="topic-input"
+              rows={3}
+              value={topic}
+              onChange={(e) => setTopic(e.target.value)}
+              placeholder="e.g. Why the best career advice I ever received was to say 'NO' more often..."
+              className="resize-none text-xs sm:text-sm font-sans leading-relaxed"
+            />
           </div>
 
-          <span className="text-[10px] font-semibold uppercase tracking-wider px-2 py-0.5 rounded-full bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center gap-1">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-            Agent Ready
-          </span>
-        </div>
+          {/* Quick Inspiration Pills */}
+          <div className="space-y-2 pt-1">
+            <div className="flex items-center justify-between">
+              <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
+                <Sparkles className="w-3 h-3 text-amber-400" />
+                Inspiration Catalysts:
+              </span>
+              <div className="flex gap-1">
+                {categories.map((cat) => (
+                  <button
+                    key={cat}
+                    type="button"
+                    onClick={() => setSelectedCategory(cat)}
+                    className={`text-[10px] px-2 py-0.5 rounded-lg font-medium transition-colors ${
+                      selectedCategory === cat
+                        ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
+                        : 'text-slate-400 hover:text-slate-300 hover:bg-slate-800'
+                    }`}
+                  >
+                    {cat}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-        {/* Topic Input Field */}
-        <div>
-          <label className="block text-xs font-semibold text-slate-300 mb-1.5 flex items-center justify-between">
-            <span>What do you want to post about?</span>
-            {topic && (
-              <button
-                type="button"
-                onClick={() => setTopic('')}
-                className="text-[10px] text-slate-400 hover:text-slate-200 transition-colors"
-              >
-                Clear
-              </button>
-            )}
-          </label>
-          <textarea
-            rows={3}
-            value={topic}
-            onChange={(e) => setTopic(e.target.value)}
-            placeholder="e.g. Why the best career advice I ever received was to say 'NO' more often..."
-            className="w-full bg-[#0a0f1d] border border-slate-700/80 focus:border-sky-500 focus:ring-2 focus:ring-sky-500/20 rounded-xl px-3.5 py-2.5 text-xs sm:text-sm text-white placeholder-slate-500 outline-none transition-all resize-none shadow-inner"
-          />
-        </div>
-
-        {/* Quick Inspiration Pills */}
-        <div className="space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-[11px] font-medium text-slate-400 flex items-center gap-1">
-              <Sparkles className="w-3 h-3 text-amber-400" />
-              Quick Inspiration Pills:
-            </span>
-            <div className="flex gap-1">
-              {categories.map((cat) => (
+            <div className="flex flex-wrap gap-1.5">
+              {filteredIdeas.map((item, idx) => (
                 <button
-                  key={cat}
+                  key={idx}
                   type="button"
-                  onClick={() => setSelectedCategory(cat)}
-                  className={`text-[10px] px-2 py-0.5 rounded-md font-medium transition-colors ${
-                    selectedCategory === cat
-                      ? 'bg-sky-500/20 text-sky-300 border border-sky-500/30'
-                      : 'text-slate-400 hover:text-slate-300 hover:bg-slate-800'
-                  }`}
+                  onClick={() => setTopic(item.text)}
+                  className="text-left text-[11px] px-2.5 py-1.5 rounded-xl bg-[#0b101f] hover:bg-slate-800/80 text-slate-300 hover:text-white border border-slate-800 hover:border-sky-500/30 transition-all flex items-center gap-1.5 group"
                 >
-                  {cat}
+                  <span className="text-[10px] text-sky-400 font-mono">#{item.category}</span>
+                  <span className="truncate max-w-[220px]">{item.text}</span>
                 </button>
               ))}
             </div>
           </div>
 
-          <div className="flex flex-wrap gap-1.5">
-            {filteredIdeas.map((item, idx) => (
-              <button
-                key={idx}
-                type="button"
-                onClick={() => setTopic(item.text)}
-                className="text-left text-[11px] px-2.5 py-1.5 rounded-xl bg-[#0f172a] hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 hover:border-slate-700 transition-all flex items-center gap-1.5 group"
+          {/* Length & Language Grid */}
+          <div className="grid grid-cols-2 gap-3 pt-1">
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                <AlignLeft className="w-3.5 h-3.5 text-sky-400" />
+                <span>Length & Density</span>
+              </label>
+              <select
+                value={length}
+                onChange={(e) => setLength(e.target.value)}
+                className="w-full bg-[#090e1c] border border-slate-750 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500/20 transition-all"
               >
-                <span className="text-[10px] text-sky-400 font-mono">#{item.category}</span>
-                <span className="truncate max-w-[240px]">{item.text}</span>
-              </button>
-            ))}
-          </div>
-        </div>
+                <option value="Short">Short (1–5 lines, punchy)</option>
+                <option value="Medium">Medium (6–10 lines, sweetspot)</option>
+                <option value="Long">Long (11–15 lines, deep story)</option>
+              </select>
+            </div>
 
-        {/* Length & Language Controls */}
-        <div className="grid grid-cols-2 gap-3 pt-1">
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-              Length & Density
-            </label>
-            <select
-              value={length}
-              onChange={(e) => setLength(e.target.value)}
-              className="w-full bg-[#0a0f1d] border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500 transition-all"
-            >
-              <option value="Short">Short (1–5 lines, punchy)</option>
-              <option value="Medium">Medium (6–10 lines, sweetspot)</option>
-              <option value="Long">Long (11–15 lines, deep story)</option>
-            </select>
+            <div className="space-y-1.5">
+              <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
+                <Globe2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span>Tone & Language</span>
+              </label>
+              <select
+                value={language}
+                onChange={(e) => setLanguage(e.target.value)}
+                className="w-full bg-[#090e1c] border border-slate-750 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500/20 transition-all"
+              >
+                <option value="English">English (Authentic Personal)</option>
+                <option value="Hinglish">Hinglish (Hindi + English blend)</option>
+              </select>
+            </div>
           </div>
 
-          <div>
-            <label className="block text-[11px] font-semibold text-slate-300 mb-1">
-              Language / Tone
-            </label>
-            <select
-              value={language}
-              onChange={(e) => setLanguage(e.target.value)}
-              className="w-full bg-[#0a0f1d] border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500 transition-all"
-            >
-              <option value="English">English (Authentic Personal)</option>
-              <option value="Hinglish">Hinglish (Hindi + English blend)</option>
-            </select>
+          {/* Autonomous Review Loop Slider */}
+          <div className="pt-2 bg-[#080d1a] p-3.5 rounded-xl border border-slate-800/80 space-y-2.5">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
+                <Zap className="w-3.5 h-3.5 text-amber-400" />
+                Autonomous Review Loops:
+              </span>
+              <Badge variant="sky" className="font-mono text-xs">
+                {maxAttempts} max attempt{maxAttempts > 1 ? 's' : ''}
+              </Badge>
+            </div>
+            
+            <Slider
+              min={1}
+              max={4}
+              step={1}
+              value={[maxAttempts]}
+              onValueChange={(val) => setMaxAttempts(val[0])}
+            />
+
+            <p className="text-[10px] text-slate-400 leading-normal">
+              Reviewer Agent audits Hook Stopping Power, formatting, and voice authenticity. If score is under 85, Writer Agent iterates autonomously.
+            </p>
           </div>
-        </div>
 
-        {/* Loop Iterations Control */}
-        <div className="pt-2 bg-[#090e1c] p-3 rounded-xl border border-slate-800/80 space-y-2">
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-semibold text-slate-300 flex items-center gap-1.5">
-              <Zap className="w-3.5 h-3.5 text-amber-400" />
-              Autonomous Review Loops:
-            </span>
-            <span className="text-xs font-mono font-bold text-sky-400 px-2 py-0.5 rounded-md bg-sky-500/10 border border-sky-500/20">
-              {maxAttempts} max attempt{maxAttempts > 1 ? 's' : ''}
-            </span>
-          </div>
-          <input
-            type="range"
-            min={1}
-            max={4}
-            value={maxAttempts}
-            onChange={(e) => setMaxAttempts(parseInt(e.target.value))}
-            className="w-full accent-sky-500 cursor-pointer h-1.5 bg-slate-800 rounded-lg"
-          />
-          <p className="text-[10px] text-slate-400 leading-normal">
-            The Reviewer Agent systematically grades Hook Stopping Power, formatting, and authentic voice. If rejected, Writer Agent refines based on critique.
-          </p>
-        </div>
-
-        {/* Launch Button */}
-        <button
-          onClick={onGenerate}
-          disabled={isGenerating || !topic.trim()}
-          className={`w-full py-3.5 px-4 rounded-xl font-bold text-xs sm:text-sm flex items-center justify-center gap-2.5 transition-all shadow-lg ${
-            isGenerating || !topic.trim()
-              ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
-              : 'bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:to-indigo-500 text-white shadow-sky-500/25 hover:shadow-sky-500/40 hover:scale-[1.01]'
-          }`}
-        >
-          {isGenerating ? (
-            <>
-              <RefreshCw className="w-4 h-4 animate-spin text-sky-300" />
-              <span>Multi-Agent Feedback Loop Running...</span>
-            </>
-          ) : (
-            <>
-              <Wand2 className="w-4 h-4 text-sky-200" />
-              <span>Launch Multi-Agent Post Generator</span>
-            </>
-          )}
-        </button>
-
-      </div>
+          {/* Launch Button */}
+          <Button
+            variant={isGenerating || !topic.trim() ? "secondary" : "gradient"}
+            size="xl"
+            onClick={onGenerate}
+            disabled={isGenerating || !topic.trim()}
+            className="w-full relative overflow-hidden group"
+          >
+            {isGenerating ? (
+              <span className="flex items-center gap-2">
+                <RefreshCw className="w-4 h-4 animate-spin text-sky-300" />
+                <span>Autonomous Agent Loops Running...</span>
+              </span>
+            ) : (
+              <span className="flex items-center gap-2">
+                <Wand2 className="w-4 h-4 text-sky-200 group-hover:rotate-12 transition-transform" />
+                <span>Launch Multi-Agent Post Generator</span>
+              </span>
+            )}
+          </Button>
+        </CardContent>
+      </Card>
 
       {/* Style Guardrails Badge Card */}
-      <div className="glass-panel p-4 rounded-2xl border border-slate-800/80 space-y-2.5">
-        <div className="flex items-center gap-2">
-          <ShieldCheck className="w-4 h-4 text-emerald-400" />
-          <h3 className="text-xs font-bold text-white uppercase tracking-wider">
-            Style DNA Guardrails Active
-          </h3>
-        </div>
+      <Card className="border-slate-800/80">
+        <CardContent className="p-4 space-y-2.5">
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-4 h-4 text-emerald-400" />
+              <h3 className="text-xs font-bold text-white uppercase tracking-wider">
+                Active Style Guardrails
+              </h3>
+            </div>
+            <Badge variant="outline" className="text-[10px] border-emerald-500/30 text-emerald-400 bg-emerald-500/10">
+              DNA Locked
+            </Badge>
+          </div>
 
-        <ul className="text-[11px] text-slate-300 space-y-1.5">
-          <li className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-sky-400"></span>
-            <span><strong>Persona:</strong> {personaTitle || 'Empathetic Realist & Tech Mentor'}</span>
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-emerald-400"></span>
-            <span><strong>Whitespace:</strong> 1-2 sentences per line break for skimmability</span>
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-purple-400"></span>
-            <span><strong>Voice:</strong> Vulnerable, anti-corporate jargon, zero buzzwords</span>
-          </li>
-          <li className="flex items-center gap-2">
-            <span className="w-1.5 h-1.5 rounded-full bg-pink-400"></span>
-            <span><strong>Ending:</strong> Heartfelt engagement question prompting comments</span>
-          </li>
-        </ul>
-      </div>
+          <ul className="text-[11px] text-slate-300 space-y-1.5 pt-1">
+            <li className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-sky-400 shrink-0"></span>
+              <span><strong>Persona:</strong> {personaTitle || 'Empathetic Realist & Tech Mentor'}</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 shrink-0"></span>
+              <span><strong>Whitespace:</strong> 1-2 sentences per line break for thumb-skimming</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-purple-400 shrink-0"></span>
+              <span><strong>Tone:</strong> Vulnerable lived experience, zero corporate clichés</span>
+            </li>
+            <li className="flex items-center gap-2">
+              <span className="w-1.5 h-1.5 rounded-full bg-amber-400 shrink-0"></span>
+              <span><strong>Ending:</strong> Heartfelt engagement prompt driving comments</span>
+            </li>
+          </ul>
+        </CardContent>
+      </Card>
     </div>
   );
 }

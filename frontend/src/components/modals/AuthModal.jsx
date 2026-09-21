@@ -1,5 +1,15 @@
 import React, { useState } from 'react';
-import { X, Sparkles, Play, LogIn, UserPlus } from 'lucide-react';
+import { Sparkles, Play, LogIn, UserPlus, Zap } from 'lucide-react';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle, 
+  DialogDescription 
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Badge } from '@/components/ui/badge';
 
 export default function AuthModal({
   isOpen,
@@ -14,8 +24,6 @@ export default function AuthModal({
   const [password, setPassword] = useState('');
   const [fullName, setFullName] = useState('');
   const [linkedinUrl, setLinkedinUrl] = useState('');
-
-  if (!isOpen) return null;
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -32,56 +40,49 @@ export default function AuthModal({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4">
-      <div className="glass-panel w-full max-w-md p-6 sm:p-8 rounded-3xl border border-slate-700 shadow-2xl relative animate-in fade-in zoom-in-95">
-        
-        {/* Close button */}
-        <button
-          onClick={onClose}
-          className="absolute top-5 right-5 text-slate-400 hover:text-white p-1 rounded-lg transition-colors"
-        >
-          <X className="w-5 h-5" />
-        </button>
-
-        {/* Modal Brand Header */}
-        <div className="text-center mb-6">
+    <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
+      <DialogContent className="max-w-md">
+        {/* Brand Header */}
+        <DialogHeader className="text-center sm:text-center pb-1">
           <div className="w-12 h-12 rounded-2xl bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 flex items-center justify-center mx-auto mb-3 shadow-lg shadow-sky-500/25">
             <Sparkles className="w-6 h-6 text-white" />
           </div>
-          <h3 className="text-xl font-bold text-white tracking-tight">
+          <DialogTitle className="text-xl font-extrabold text-white text-center">
             Welcome to Post<span className="text-sky-400">Mimic</span>
-          </h3>
-          <p className="text-xs text-slate-400 mt-1">
+          </DialogTitle>
+          <DialogDescription className="text-xs text-slate-400 text-center">
             Autonomous Multi-Agent LinkedIn Post Studio
-          </p>
-        </div>
+          </DialogDescription>
+        </DialogHeader>
 
         {/* 1-Click Demo Login Box */}
-        <div className="mb-5 p-4 rounded-2xl bg-gradient-to-r from-sky-950/40 via-blue-950/40 to-indigo-950/40 border border-sky-500/30">
-          <div className="flex items-center justify-between mb-2">
+        <div className="p-4 rounded-2xl bg-gradient-to-r from-sky-950/40 via-blue-950/40 to-indigo-950/40 border border-sky-500/30 space-y-2.5">
+          <div className="flex items-center justify-between">
             <span className="text-xs font-bold text-sky-300 flex items-center gap-1.5">
-              <Play className="w-3.5 h-3.5 fill-sky-300" />
+              <Zap className="w-3.5 h-3.5 fill-sky-300" />
               Instant 1-Click Demo
             </span>
-            <span className="text-[10px] bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full font-semibold">
+            <Badge variant="sky" className="text-[10px] font-semibold">
               Ready to Test
-            </span>
+            </Badge>
           </div>
-          <p className="text-[11px] text-slate-300 mb-3 leading-relaxed">
+          <p className="text-[11px] text-slate-300 leading-relaxed">
             Jump in immediately as <strong>Mohan Sharma</strong> with 10 historic posts and style persona pre-loaded.
           </p>
-          <button
+          <Button
             type="button"
+            variant="gradient"
+            size="default"
             onClick={onDemoLogin}
             disabled={isLoading}
-            className="w-full py-2.5 rounded-xl bg-gradient-to-r from-sky-600 to-blue-600 hover:from-sky-500 hover:to-blue-500 text-white font-semibold text-xs transition-all flex items-center justify-center gap-2 shadow-md shadow-sky-600/25"
+            className="w-full font-bold shadow-md"
           >
             <span>{isLoading ? 'Signing in...' : 'Launch 1-Click Demo'}</span>
-          </button>
+          </Button>
         </div>
 
         {/* Divider */}
-        <div className="relative my-4 text-center">
+        <div className="relative my-2 text-center">
           <div className="absolute inset-0 flex items-center">
             <div className="w-full border-t border-slate-800"></div>
           </div>
@@ -91,7 +92,7 @@ export default function AuthModal({
         </div>
 
         {/* Form Mode Toggle */}
-        <div className="flex rounded-xl bg-[#080d1a] p-1 mb-4 border border-slate-800">
+        <div className="flex rounded-xl bg-[#080d1a] p-1 border border-slate-800">
           <button
             type="button"
             onClick={() => setMode('login')}
@@ -113,71 +114,68 @@ export default function AuthModal({
         </div>
 
         {/* Auth Form */}
-        <form onSubmit={handleSubmit} className="space-y-3.5">
+        <form onSubmit={handleSubmit} className="space-y-3 pt-1">
           {mode === 'register' && (
-            <div>
-              <label className="block text-xs text-slate-300 mb-1">Full Name</label>
-              <input
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-300">Full Name</label>
+              <Input
                 type="text"
                 required
                 value={fullName}
                 onChange={(e) => setFullName(e.target.value)}
                 placeholder="e.g. Alex Rivera"
-                className="w-full bg-[#090e1c] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500"
               />
             </div>
           )}
 
-          <div>
-            <label className="block text-xs text-slate-300 mb-1">Email</label>
-            <input
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-slate-300">Email</label>
+            <Input
               type="email"
               required
               value={email}
               onChange={(e) => setEmail(e.target.value)}
               placeholder="you@example.com"
-              className="w-full bg-[#090e1c] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500"
             />
           </div>
 
-          <div>
-            <label className="block text-xs text-slate-300 mb-1">Password</label>
-            <input
+          <div className="space-y-1">
+            <label className="text-xs font-semibold text-slate-300">Password</label>
+            <Input
               type="password"
               required
               value={password}
               onChange={(e) => setPassword(e.target.value)}
               placeholder="••••••••"
-              className="w-full bg-[#090e1c] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500"
             />
           </div>
 
           {mode === 'register' && (
-            <div>
-              <label className="block text-xs text-slate-300 mb-1">LinkedIn Profile URL</label>
-              <input
+            <div className="space-y-1">
+              <label className="text-xs font-semibold text-slate-300">LinkedIn Profile URL</label>
+              <Input
                 type="url"
                 value={linkedinUrl}
                 onChange={(e) => setLinkedinUrl(e.target.value)}
                 placeholder="https://linkedin.com/in/username"
-                className="w-full bg-[#090e1c] border border-slate-700 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500"
               />
             </div>
           )}
 
-          <button
+          <Button
             type="submit"
+            variant="secondary"
+            size="default"
             disabled={isLoading}
-            className="w-full mt-2 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-white font-semibold text-xs border border-slate-700 transition-all flex items-center justify-center gap-2"
+            className="w-full mt-2 font-bold gap-2"
           >
             {mode === 'login' ? <LogIn className="w-3.5 h-3.5" /> : <UserPlus className="w-3.5 h-3.5" />}
             <span>
               {isLoading ? 'Processing...' : mode === 'login' ? 'Sign In to Account' : 'Create Account'}
             </span>
-          </button>
+          </Button>
         </form>
-
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   );
 }
