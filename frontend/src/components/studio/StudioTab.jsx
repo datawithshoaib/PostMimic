@@ -3,10 +3,9 @@ import PromptControls from './PromptControls';
 import AgentPipeline from './AgentPipeline';
 import HumanInLoop from './HumanInLoop';
 import LinkedInPreview from './LinkedInPreview';
-import { Bot, Sparkles, Sliders, Dna, ArrowUpRight } from 'lucide-react';
+import { Bot, Dna, ArrowUpRight } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Button } from '@/components/ui/button';
 
 export default function StudioTab({
   topic,
@@ -47,61 +46,46 @@ export default function StudioTab({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-7">
       
       {/* Studio Header Banner */}
-      <Card className="border-slate-800/90 shadow-xl overflow-hidden relative">
-        <div className="absolute top-0 right-0 w-96 h-full bg-gradient-to-l from-sky-500/10 via-blue-500/5 to-transparent pointer-events-none"></div>
-        <CardContent className="p-4 sm:p-5 flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
-          <div className="flex items-start gap-3.5">
-            <div className="p-3 rounded-2xl bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 text-white shadow-lg shadow-sky-500/25 shrink-0">
-              <Bot className="w-6 h-6" />
+      <Card className="overflow-hidden border-slate-700/60 bg-gradient-to-br from-[#111c2b] via-[#101827] to-[#101522] shadow-lg shadow-black/10">
+        <CardContent className="relative flex flex-col justify-between gap-6 p-6 md:flex-row md:items-center md:p-7">
+          <div className="absolute -right-10 -top-24 h-64 w-64 rounded-full bg-sky-500/10 blur-3xl pointer-events-none" />
+          <div className="relative flex items-start gap-4">
+            <div className="hidden h-12 w-12 shrink-0 items-center justify-center rounded-2xl border border-sky-400/20 bg-sky-400/10 text-sky-300 sm:flex">
+              <Bot className="h-6 w-6" />
             </div>
             <div>
-              <div className="flex items-center gap-2 flex-wrap">
-                <h1 className="text-base sm:text-lg font-bold text-white tracking-wide">
-                  Multi-Agent Post Studio
-                </h1>
-                <Badge variant="success" className="font-mono text-[10px] gap-1.5">
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                  Autonomous Loop Active
+              <div className="mb-2 flex flex-wrap items-center gap-2">
+                <span className="text-[11px] font-semibold uppercase tracking-[0.16em] text-sky-300">Writing workspace</span>
+                <Badge variant="success" className="gap-1.5 border-emerald-500/20 bg-emerald-500/10 font-medium text-emerald-300">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />Agents ready
                 </Badge>
               </div>
-              <p className="text-xs text-slate-400 mt-1 max-w-2xl leading-relaxed">
-                Writer Agent drafts content tuned to your Style DNA while Reviewer Agent audits hook tension, skimmability, and authentic voice through iterative feedback cycles.
+              <h1 className="text-2xl font-semibold tracking-tight text-white sm:text-[28px]">Create your next LinkedIn post</h1>
+              <p className="mt-2 max-w-2xl text-sm leading-relaxed text-slate-400">
+                Shape an idea, then let your writer and reviewer refine it in your voice.
               </p>
             </div>
           </div>
 
-          {/* Active Persona Pill */}
-          <div className="flex items-center gap-3 bg-[#080d1a] px-4 py-2.5 rounded-2xl border border-slate-750 shrink-0 self-start md:self-auto shadow-inner">
-            <div className="w-2.5 h-2.5 rounded-full bg-sky-400 animate-pulse"></div>
-            <div>
-              <span className="text-[10px] uppercase tracking-wider text-slate-400 font-bold block">
-                Active Style Persona
-              </span>
-              <span className="text-xs font-bold text-white truncate max-w-[180px] block">
-                {personaTitle || 'Empathetic Career Mentor'}
-              </span>
-            </div>
-            <Button
-              variant="ghost"
-              size="iconSm"
-              onClick={() => onSwitchTab('style')}
-              className="text-slate-400 hover:text-sky-300 ml-1"
-              title="Inspect Style DNA"
-            >
-              <Dna className="w-4 h-4 text-sky-400" />
-            </Button>
-          </div>
+          <button onClick={() => onSwitchTab('style')} className="relative flex items-center gap-3 rounded-xl border border-slate-700/80 bg-slate-950/40 px-4 py-3 text-left transition-colors hover:border-sky-500/40 hover:bg-slate-950/70">
+            <span className="flex h-9 w-9 items-center justify-center rounded-lg bg-violet-500/10 text-violet-300"><Dna className="h-4 w-4" /></span>
+            <span className="min-w-0">
+              <span className="block text-[10px] font-medium uppercase tracking-wider text-slate-500">Active voice</span>
+              <span className="mt-0.5 block max-w-[190px] truncate text-sm font-semibold text-slate-200">{personaTitle || 'Empathetic Career Mentor'}</span>
+            </span>
+            <ArrowUpRight className="ml-1 h-4 w-4 text-slate-500" />
+          </button>
         </CardContent>
       </Card>
 
       {/* Studio Main Grid Layout (12 columns) */}
-      <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+      <div className="grid grid-cols-1 items-start gap-6 lg:grid-cols-12 lg:gap-7">
         
         {/* Left Column: Generator Controls (5 cols on lg) */}
-        <div className="lg:col-span-5 space-y-6">
+        <div className="space-y-6 lg:col-span-5">
           <PromptControls
             topic={topic}
             setTopic={setTopic}
@@ -118,7 +102,7 @@ export default function StudioTab({
         </div>
 
         {/* Right Column: Multi-Agent Trace & LinkedIn Live Preview (7 cols on lg) */}
-        <div className="lg:col-span-7 space-y-6">
+        <div className="space-y-6 lg:col-span-7">
           
           {/* Multi-Agent Iteration Pipeline */}
           <AgentPipeline

@@ -1,22 +1,28 @@
+"use client";
+
 import React, { useState, useMemo } from 'react';
 import { 
   History, 
   Search, 
   Plus, 
-  RefreshCw, 
   Dna, 
-  Filter, 
   Linkedin, 
   Inbox,
-  Flame,
-  CheckCircle2,
-  Sparkles
+  ArrowUpDown,
+  Filter,
+  X
 } from 'lucide-react';
 import HistoricCard from './HistoricCard';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function HistoricTab({
   historicPosts,
@@ -29,9 +35,10 @@ export default function HistoricTab({
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [languageFilter, setLanguageFilter] = useState('ALL');
+  const [sortBy, setSortBy] = useState('reactions'); // 'reactions' | 'length' | 'default'
 
   const filteredPosts = useMemo(() => {
-    return historicPosts.filter((post) => {
+    let posts = historicPosts.filter((post) => {
       const q = searchQuery.toLowerCase();
       const matchesSearch = !q 
         || post.text.toLowerCase().includes(q) 
@@ -40,7 +47,15 @@ export default function HistoricTab({
       const matchesLang = languageFilter === 'ALL' || post.language === languageFilter;
       return matchesSearch && matchesLang;
     });
-  }, [historicPosts, searchQuery, languageFilter]);
+
+    if (sortBy === 'reactions') {
+      posts = [...posts].sort((a, b) => (b.engagement || 0) - (a.engagement || 0));
+    } else if (sortBy === 'length') {
+      posts = [...posts].sort((a, b) => (b.line_count || 0) - (a.line_count || 0));
+    }
+
+    return posts;
+  }, [historicPosts, searchQuery, languageFilter, sortBy]);
 
   return (
     <div className="space-y-6">
@@ -69,7 +84,7 @@ export default function HistoricTab({
           </div>
 
           {/* Action Buttons */}
-          <div className="flex items-center gap-2.5 shrink-0">
+          <div className="flex items-center gap-2.5 shrink-0 flex-wrap">
             <Button
               variant="linkedin"
               size="sm"
@@ -94,7 +109,7 @@ export default function HistoricTab({
         </CardContent>
       </Card>
 
-      {/* Filter and Search Bar */}
+      {/* Filter and Search Bar using shadcn Select */}
       <Card className="border-slate-800/80">
         <CardContent className="p-3.5 flex flex-wrap items-center justify-between gap-3">
           
@@ -111,30 +126,47 @@ export default function HistoricTab({
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="text-slate-400 hover:text-white text-xs font-semibold"
+                className="text-slate-400 hover:text-white transition-colors"
+                title="Clear search"
               >
-                Clear
+                <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
 
-          {/* Language Filter & Add Post */}
-          <div className="flex items-center gap-2.5">
-            <select
-              value={languageFilter}
-              onChange={(e) => setLanguageFilter(e.target.value)}
-              className="bg-[#090e1c] border border-slate-750 rounded-xl px-3 py-1.5 text-xs text-slate-300 outline-none focus:border-sky-500 h-9"
-            >
-              <option value="ALL">All Languages ({historicPosts.length})</option>
-              <option value="English">English only</option>
-              <option value="Hinglish">Hinglish only</option>
-            </select>
+          {/* Language Filter & Sort using shadcn Select */}
+          <div className="flex items-center gap-2.5 flex-wrap">
+            <div className="w-40">
+              <Select value={languageFilter} onValueChange={setLanguageFilter}>
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue placeholder="Filter Language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="ALL">All Languages ({historicPosts.length})</SelectItem>
+                  <SelectItem value="English">English only</SelectItem>
+                  <SelectItem value="Hinglish">Hinglish only</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+
+            <div className="w-44">
+              <Select value={sortBy} onValueChange={setSortBy}>
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue placeholder="Sort By" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="reactions">Highest Reactions</SelectItem>
+                  <SelectItem value="length">Longest Content</SelectItem>
+                  <SelectItem value="default">Default Order</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
 
             <Button
               variant="default"
               size="sm"
               onClick={onOpenAddModal}
-              className="gap-1.5 font-bold"
+              className="gap-1.5 font-bold h-9"
             >
               <Plus className="w-4 h-4" />
               <span>Add Post Sample</span>

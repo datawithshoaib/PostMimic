@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { 
   Eye, 
@@ -17,13 +19,24 @@ import {
   Info,
   CheckCircle2,
   AlertTriangle,
-  Heart,
-  Share2
+  Bold,
+  Italic,
+  List,
+  Wifi,
+  Battery,
+  ChevronDown
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+import { Switch } from '@/components/ui/switch';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 
 export default function LinkedInPreview({
   postText,
@@ -32,6 +45,7 @@ export default function LinkedInPreview({
   onCopySuccess
 }) {
   const [deviceMode, setDeviceMode] = useState('desktop'); // 'desktop' | 'mobile'
+  const [useBezelFrame, setUseBezelFrame] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false);
   const [copied, setCopied] = useState(false);
   const [hasLiked, setHasLiked] = useState(false);
@@ -116,8 +130,8 @@ export default function LinkedInPreview({
           </div>
 
           {/* Device Switcher and Action Buttons */}
-          <div className="flex items-center gap-2">
-            {/* Device Toggle */}
+          <div className="flex items-center gap-2 flex-wrap">
+            {/* Device Mode Toggle */}
             <div className="flex items-center bg-[#090e1c] p-1 rounded-xl border border-slate-800">
               <button
                 type="button"
@@ -145,6 +159,17 @@ export default function LinkedInPreview({
               </button>
             </div>
 
+            {/* Mobile Bezel Toggle (only visible in mobile mode) */}
+            {deviceMode === 'mobile' && (
+              <div className="flex items-center gap-1.5 bg-[#090e1c] px-2.5 py-1 rounded-xl border border-slate-800 text-[11px] text-slate-300">
+                <span>Phone Frame</span>
+                <Switch
+                  checked={useBezelFrame}
+                  onCheckedChange={setUseBezelFrame}
+                />
+              </div>
+            )}
+
             {/* Copy Button */}
             <Button
               variant={copied ? "default" : "secondary"}
@@ -168,157 +193,246 @@ export default function LinkedInPreview({
               <span>Save Draft</span>
             </Button>
 
-            {/* Download Button */}
-            <Button
-              variant="secondary"
-              size="iconSm"
-              onClick={handleDownload}
-              disabled={isPlaceholder}
-              title="Download as Markdown"
-            >
-              <Download className="w-3.5 h-3.5 text-slate-300" />
-            </Button>
+            {/* Export Dropdown */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="secondary"
+                  size="iconSm"
+                  disabled={isPlaceholder}
+                  title="Export Options"
+                >
+                  <Download className="w-3.5 h-3.5 text-slate-300" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-48">
+                <DropdownMenuItem onClick={handleDownload} className="gap-2">
+                  <Download className="w-3.5 h-3.5 text-sky-400" />
+                  <span>Download Markdown</span>
+                </DropdownMenuItem>
+                <DropdownMenuItem onClick={handleCopy} className="gap-2">
+                  <Copy className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>Copy Clean Text</span>
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
       </CardHeader>
 
       <CardContent className="space-y-4">
-        {/* LinkedIn Post Mock Container */}
+        {/* LinkedIn Post Mock Container (with optional Phone Bezel) */}
         <div className={`mx-auto transition-all duration-300 ${
-          deviceMode === 'mobile' ? 'max-w-[390px]' : 'w-full'
+          deviceMode === 'mobile' ? 'max-w-[400px]' : 'w-full'
         }`}>
-          <div className="linkedin-card p-4 sm:p-5 border border-slate-200/90 shadow-2xl relative">
-            
-            {/* Post Header */}
-            <div className="flex items-start justify-between mb-3">
-              <div className="flex items-start gap-3">
-                <Avatar className="w-12 h-12 ring-1 ring-slate-200 shrink-0">
-                  <AvatarImage 
-                    src={user?.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80"} 
-                    alt={user?.full_name || "Author"} 
-                  />
-                  <AvatarFallback className="bg-slate-100 text-slate-700 font-bold">
-                    {user?.full_name?.slice(0, 2).toUpperCase() || 'MS'}
-                  </AvatarFallback>
-                </Avatar>
+          {deviceMode === 'mobile' && useBezelFrame ? (
+            /* Smartphone Silhouette Bezel */
+            <div className="relative mx-auto rounded-[42px] border-[8px] border-slate-700 bg-slate-900 shadow-2xl p-2 pt-6">
+              {/* Dynamic Island / Notch */}
+              <div className="absolute top-2 left-1/2 -translate-x-1/2 w-24 h-4 bg-black rounded-full flex items-center justify-end px-2 z-20">
+                <span className="w-2 h-2 rounded-full bg-slate-800"></span>
+              </div>
 
-                <div className="leading-tight">
-                  <div className="flex items-center gap-1">
-                    <h4 className="font-bold text-[14px] text-gray-900 hover:text-[#0a66c2] hover:underline cursor-pointer">
-                      {user?.full_name || 'Mohan Sharma'}
-                    </h4>
-                    <span className="text-[11px] text-gray-500 font-normal">• 1st</span>
-                  </div>
-                  <p className="text-[12px] text-gray-500 line-clamp-1 max-w-sm mt-0.5">
-                    {user?.headline || 'Tech Educator | 150K+ LinkedIn | Founder @ Codebasics'}
-                  </p>
-                  <div className="flex items-center gap-1 text-[11px] text-gray-400 mt-1">
-                    <span>Just now</span>
-                    <span>•</span>
-                    <Globe className="w-3 h-3 text-gray-400" />
-                  </div>
+              {/* Status Bar */}
+              <div className="flex items-center justify-between text-[10px] text-slate-400 px-4 pt-1 pb-2">
+                <span>9:41</span>
+                <div className="flex items-center gap-1.5">
+                  <Wifi className="w-3 h-3" />
+                  <Battery className="w-3.5 h-3.5" />
                 </div>
               </div>
 
-              <button className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors">
-                <MoreHorizontal className="w-5 h-5" />
-              </button>
-            </div>
+              {/* Inner Phone Screen */}
+              <div className="rounded-[28px] overflow-hidden bg-white text-gray-900 shadow-inner">
+                {/* Native LinkedIn Mobile Header Bar */}
+                <div className="bg-white border-b border-gray-100 px-3 py-2 flex items-center justify-between text-xs">
+                  <div className="flex items-center gap-2">
+                    <span className="w-6 h-6 rounded bg-[#0a66c2] text-white flex items-center justify-center font-bold text-xs">in</span>
+                    <span className="font-semibold text-gray-700 text-[11px]">Feed</span>
+                  </div>
+                  <span className="text-[10px] text-gray-400">Post Preview</span>
+                </div>
 
-            {/* Post Text Body */}
-            <div className="linkedin-text mb-4 text-[14.5px] leading-relaxed text-gray-900 font-linkedin select-text">
-              {displayedContent}
-              {shouldTruncate && (
-                <span 
-                  onClick={() => setIsExpanded(true)}
-                  className="text-gray-500 hover:text-[#0a66c2] cursor-pointer font-medium ml-1 inline-block"
-                >
-                  ...see more
-                </span>
-              )}
-              {isExpanded && !isPlaceholder && (
-                <span 
-                  onClick={() => setIsExpanded(false)}
-                  className="text-gray-400 hover:text-gray-600 cursor-pointer text-xs block mt-2 font-medium"
-                >
-                  (collapse preview)
-                </span>
-              )}
-            </div>
+                <div className="p-3.5 bg-white text-gray-900 select-text">
+                  {/* Post Author Header */}
+                  <div className="flex items-start justify-between mb-2">
+                    <div className="flex items-start gap-2.5">
+                      <Avatar className="w-10 h-10 ring-1 ring-slate-200 shrink-0">
+                        <AvatarImage src={user?.avatar_url} />
+                        <AvatarFallback className="bg-slate-100 text-slate-700 font-bold text-xs">
+                          {user?.full_name?.slice(0, 2).toUpperCase() || 'MS'}
+                        </AvatarFallback>
+                      </Avatar>
+                      <div className="leading-tight">
+                        <div className="flex items-center gap-1">
+                          <h4 className="font-bold text-[13px] text-gray-900">
+                            {user?.full_name || 'Mohan Sharma'}
+                          </h4>
+                          <span className="text-[10px] text-gray-500">• 1st</span>
+                        </div>
+                        <p className="text-[11px] text-gray-500 line-clamp-1">
+                          {user?.headline || 'Tech Educator | 150K+ LinkedIn'}
+                        </p>
+                        <span className="text-[10px] text-gray-400">Just now • 🌐</span>
+                      </div>
+                    </div>
+                  </div>
 
-            {/* Engagement Counts Bar */}
-            <div className="flex items-center justify-between py-2 border-t border-b border-gray-100 text-[12px] text-gray-500 mb-1.5">
-              <div className="flex items-center gap-1.5">
-                <span className="flex -space-x-1 shrink-0">
-                  <span className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[9px] text-white shadow-sm">👍</span>
-                  <span className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center text-[9px] text-white shadow-sm">❤️</span>
-                  <span className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-[9px] text-white shadow-sm">👏</span>
-                </span>
-                <span className="font-medium text-gray-600">{hasLiked ? 349 : 348} reactions</span>
+                  {/* Post Content */}
+                  <div className="linkedin-text mb-3 text-[13.5px] leading-relaxed text-gray-900 font-sans">
+                    {displayedContent}
+                    {shouldTruncate && (
+                      <span 
+                        onClick={() => setIsExpanded(true)}
+                        className="text-gray-500 hover:text-[#0a66c2] cursor-pointer font-medium ml-1 inline-block"
+                      >
+                        ...see more
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Engagement Bar */}
+                  <div className="flex items-center justify-between py-1.5 border-t border-b border-gray-100 text-[11px] text-gray-500 mb-1">
+                    <span>👍 ❤️ 👏 348 reactions</span>
+                    <span>42 comments</span>
+                  </div>
+                </div>
               </div>
-              <div className="flex items-center gap-2 text-gray-500">
-                <span>42 comments</span>
-                <span>•</span>
-                <span>12 reposts</span>
+            </div>
+          ) : (
+            /* Flat LinkedIn Feed Card */
+            <div className="linkedin-card p-4 sm:p-5 border border-slate-200/90 shadow-2xl relative">
+              {/* Post Header */}
+              <div className="flex items-start justify-between mb-3">
+                <div className="flex items-start gap-3">
+                  <Avatar className="w-12 h-12 ring-1 ring-slate-200 shrink-0">
+                    <AvatarImage 
+                      src={user?.avatar_url || "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=200&auto=format&fit=crop&q=80"} 
+                      alt={user?.full_name || "Author"} 
+                    />
+                    <AvatarFallback className="bg-slate-100 text-slate-700 font-bold">
+                      {user?.full_name?.slice(0, 2).toUpperCase() || 'MS'}
+                    </AvatarFallback>
+                  </Avatar>
+
+                  <div className="leading-tight">
+                    <div className="flex items-center gap-1">
+                      <h4 className="font-bold text-[14px] text-gray-900 hover:text-[#0a66c2] hover:underline cursor-pointer">
+                        {user?.full_name || 'Mohan Sharma'}
+                      </h4>
+                      <span className="text-[11px] text-gray-500 font-normal">• 1st</span>
+                    </div>
+                    <p className="text-[12px] text-gray-500 line-clamp-1 max-w-sm mt-0.5">
+                      {user?.headline || 'Tech Educator | 150K+ LinkedIn | Founder @ Codebasics'}
+                    </p>
+                    <div className="flex items-center gap-1 text-[11px] text-gray-400 mt-1">
+                      <span>Just now</span>
+                      <span>•</span>
+                      <Globe className="w-3 h-3 text-gray-400" />
+                    </div>
+                  </div>
+                </div>
+
+                <button className="text-gray-400 hover:text-gray-600 p-1 rounded-full hover:bg-gray-100 transition-colors">
+                  <MoreHorizontal className="w-5 h-5" />
+                </button>
               </div>
-            </div>
 
-            {/* Interaction Action Buttons */}
-            <div className="flex items-center justify-between text-gray-600 pt-1 text-[13px] font-semibold">
-              <button 
-                onClick={() => setHasLiked(!hasLiked)}
-                className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg hover:bg-gray-100 flex-1 transition-colors ${
-                  hasLiked ? 'text-[#0a66c2]' : ''
-                }`}
-              >
-                <ThumbsUp className={`w-4 h-4 ${hasLiked ? 'fill-[#0a66c2]' : ''}`} />
-                <span className="hidden sm:inline">Like</span>
-              </button>
-              <button className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg hover:bg-gray-100 flex-1 transition-colors">
-                <MessageSquare className="w-4 h-4" />
-                <span className="hidden sm:inline">Comment</span>
-              </button>
-              <button className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg hover:bg-gray-100 flex-1 transition-colors">
-                <Repeat className="w-4 h-4" />
-                <span className="hidden sm:inline">Repost</span>
-              </button>
-              <button className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg hover:bg-gray-100 flex-1 transition-colors">
-                <Send className="w-4 h-4" />
-                <span className="hidden sm:inline">Send</span>
-              </button>
-            </div>
+              {/* Post Text Body */}
+              <div className="linkedin-text mb-4 text-[14.5px] leading-relaxed text-gray-900 font-linkedin select-text">
+                {displayedContent}
+                {shouldTruncate && (
+                  <span 
+                    onClick={() => setIsExpanded(true)}
+                    className="text-gray-500 hover:text-[#0a66c2] cursor-pointer font-medium ml-1 inline-block"
+                  >
+                    ...see more
+                  </span>
+                )}
+                {isExpanded && !isPlaceholder && (
+                  <span 
+                    onClick={() => setIsExpanded(false)}
+                    className="text-gray-400 hover:text-gray-600 cursor-pointer text-xs block mt-2 font-medium"
+                  >
+                    (collapse preview)
+                  </span>
+                )}
+              </div>
 
-          </div>
+              {/* Engagement Counts Bar */}
+              <div className="flex items-center justify-between py-2 border-t border-b border-gray-100 text-[12px] text-gray-500 mb-1.5">
+                <div className="flex items-center gap-1.5">
+                  <span className="flex -space-x-1 shrink-0">
+                    <span className="w-4 h-4 rounded-full bg-blue-500 flex items-center justify-center text-[9px] text-white shadow-sm">👍</span>
+                    <span className="w-4 h-4 rounded-full bg-red-500 flex items-center justify-center text-[9px] text-white shadow-sm">❤️</span>
+                    <span className="w-4 h-4 rounded-full bg-emerald-500 flex items-center justify-center text-[9px] text-white shadow-sm">👏</span>
+                  </span>
+                  <span className="font-medium text-gray-600">{hasLiked ? 349 : 348} reactions</span>
+                </div>
+                <div className="flex items-center gap-2 text-gray-500">
+                  <span>42 comments</span>
+                  <span>•</span>
+                  <span>12 reposts</span>
+                </div>
+              </div>
+
+              {/* Interaction Action Buttons */}
+              <div className="flex items-center justify-between text-gray-600 pt-1 text-[13px] font-semibold">
+                <button 
+                  onClick={() => setHasLiked(!hasLiked)}
+                  className={`flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg hover:bg-gray-100 flex-1 transition-colors ${
+                    hasLiked ? 'text-[#0a66c2]' : ''
+                  }`}
+                >
+                  <ThumbsUp className={`w-4 h-4 ${hasLiked ? 'fill-[#0a66c2]' : ''}`} />
+                  <span className="hidden sm:inline">Like</span>
+                </button>
+                <button className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg hover:bg-gray-100 flex-1 transition-colors">
+                  <MessageSquare className="w-4 h-4" />
+                  <span className="hidden sm:inline">Comment</span>
+                </button>
+                <button className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg hover:bg-gray-100 flex-1 transition-colors">
+                  <Repeat className="w-4 h-4" />
+                  <span className="hidden sm:inline">Repost</span>
+                </button>
+                <button className="flex items-center justify-center gap-1.5 py-2 px-2 rounded-lg hover:bg-gray-100 flex-1 transition-colors">
+                  <Send className="w-4 h-4" />
+                  <span className="hidden sm:inline">Send</span>
+                </button>
+              </div>
+
+            </div>
+          )}
         </div>
 
         {/* Analytics & Retention Metric Bar */}
         <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5 pt-1">
-          <div className="p-3 rounded-xl bg-[#080d1a] border border-slate-800 text-center">
+          <div className="p-3 rounded-2xl bg-[#080d1a] border border-slate-800 text-center">
             <span className="text-[10px] text-slate-400 uppercase font-semibold">Characters</span>
             <p className="text-base font-bold text-white mt-0.5 font-mono">{chars}</p>
-            <span className="text-[9px] text-slate-500">Max: 3,000</span>
+            <span className="text-[9px] text-slate-500">Ideal: 800–1,400</span>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#080d1a] border border-slate-800 text-center">
+          <div className="p-3 rounded-2xl bg-[#080d1a] border border-slate-800 text-center">
             <span className="text-[10px] text-slate-400 uppercase font-semibold">Words</span>
             <p className="text-base font-bold text-white mt-0.5 font-mono">{words}</p>
             <span className="text-[9px] text-emerald-400 font-medium">Optimal: 120-180</span>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#080d1a] border border-slate-800 text-center">
+          <div className="p-3 rounded-2xl bg-[#080d1a] border border-slate-800 text-center">
             <span className="text-[10px] text-slate-400 uppercase font-semibold">Whitespace Lines</span>
             <p className="text-base font-bold text-white mt-0.5 font-mono">{lines}</p>
             <span className="text-[9px] text-sky-400 font-medium">Thumb-skimmable</span>
           </div>
 
-          <div className="p-3 rounded-xl bg-[#080d1a] border border-slate-800 text-center">
+          <div className="p-3 rounded-2xl bg-[#080d1a] border border-slate-800 text-center">
             <span className="text-[10px] text-slate-400 uppercase font-semibold">Est. Read Time</span>
             <p className="text-base font-bold text-sky-400 mt-0.5 font-mono">~{readSeconds}s</p>
-            <span className="text-[9px] text-slate-500">Scroll retention</span>
+            <span className="text-[9px] text-slate-500">Feed dwell-time</span>
           </div>
         </div>
 
-        {/* Mobile Hook Retention Insight */}
+        {/* Mobile Hook Retention Insight Alert */}
         {!isPlaceholder && (
           <div className={`p-3.5 rounded-2xl border flex items-center gap-3 text-xs ${
             isHookShort 
@@ -336,7 +450,7 @@ export default function LinkedInPreview({
                   ? 'Mobile-Optimized Hook Line' 
                   : 'Hook line exceeds 110 characters'}
               </span>
-              <p className="text-[11px] text-slate-400 leading-tight mt-0.5">
+              <p className="text-[11px] text-slate-400 leading-tight mt-0.5 font-sans">
                 {isHookShort 
                   ? 'Your opening line fits cleanly before the LinkedIn mobile fold without awkward cutoff.' 
                   : 'Consider trimming the first sentence so readers digest the entire punchline before hitting "...see more".'}

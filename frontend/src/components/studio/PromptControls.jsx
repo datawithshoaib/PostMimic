@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { 
   Sliders, 
@@ -7,17 +9,28 @@ import {
   Zap, 
   ShieldCheck, 
   Lightbulb, 
-  Check, 
-  ChevronRight,
   AlignLeft,
   Globe2,
-  Cpu
+  Dice5,
+  X
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
 import { Textarea } from '@/components/ui/textarea';
 import { Slider } from '@/components/ui/slider';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from '@/components/ui/tooltip';
 
 const INSPIRATION_IDEAS = [
   { category: 'Career', text: 'Job rejections are actually blessings in disguise — here is why' },
@@ -48,6 +61,25 @@ export default function PromptControls({
     : INSPIRATION_IDEAS.filter(item => item.category === selectedCategory);
 
   const categories = ['All', 'Career', 'AI & Tech', 'Mindset', 'Contrarian'];
+
+  const handleRandomCatalyst = () => {
+    const random = INSPIRATION_IDEAS[Math.floor(Math.random() * INSPIRATION_IDEAS.length)];
+    setTopic(random.text);
+  };
+
+  const getLoopDescription = (val) => {
+    switch (val) {
+      case 1:
+        return '1 Loop: Fast direct draft with single pass reviewer audit.';
+      case 2:
+        return '2 Loops: Balanced refinement. Reviewer critiques hook & spacing.';
+      case 3:
+        return '3 Loops: Recommended. Iterates until score >= 85 or 3 revisions.';
+      case 4:
+      default:
+        return '4 Loops: Deep autonomous multi-pass polishing for viral quality.';
+    }
+  };
 
   return (
     <div className="space-y-5">
@@ -84,25 +116,43 @@ export default function PromptControls({
                 <Lightbulb className="w-3.5 h-3.5 text-amber-400" />
                 <span>What do you want to post about?</span>
               </label>
-              {topic && (
+              
+              <div className="flex items-center gap-2">
                 <button
                   type="button"
-                  onClick={() => setTopic('')}
-                  className="text-[11px] text-slate-400 hover:text-rose-300 transition-colors"
+                  onClick={handleRandomCatalyst}
+                  className="text-[11px] text-sky-400 hover:text-sky-300 transition-colors flex items-center gap-1 font-normal"
+                  title="Pick a random topic catalyst"
                 >
-                  Clear text
+                  <Dice5 className="w-3 h-3" />
+                  <span>Surprise Me</span>
                 </button>
-              )}
+                {topic && (
+                  <button
+                    type="button"
+                    onClick={() => setTopic('')}
+                    className="text-[11px] text-slate-400 hover:text-rose-300 transition-colors flex items-center gap-0.5"
+                  >
+                    <X className="w-3 h-3" />
+                    <span>Clear</span>
+                  </button>
+                )}
+              </div>
             </div>
             
-            <Textarea
-              id="topic-input"
-              rows={3}
-              value={topic}
-              onChange={(e) => setTopic(e.target.value)}
-              placeholder="e.g. Why the best career advice I ever received was to say 'NO' more often..."
-              className="resize-none text-xs sm:text-sm font-sans leading-relaxed"
-            />
+            <div className="relative">
+              <Textarea
+                id="topic-input"
+                rows={3}
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                placeholder="e.g. Why the best career advice I ever received was to say 'NO' more often..."
+                className="resize-none text-xs sm:text-sm font-sans leading-relaxed pr-16"
+              />
+              <span className="absolute bottom-2 right-2 text-[10px] text-slate-500 font-mono select-none">
+                {topic.length} chars
+              </span>
+            </div>
           </div>
 
           {/* Quick Inspiration Pills */}
@@ -145,49 +195,55 @@ export default function PromptControls({
             </div>
           </div>
 
-          {/* Length & Language Grid */}
+          {/* Length & Language Grid using shadcn Select */}
           <div className="grid grid-cols-2 gap-3 pt-1">
+            {/* Length Select */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
                 <AlignLeft className="w-3.5 h-3.5 text-sky-400" />
                 <span>Length & Density</span>
               </label>
-              <select
-                value={length}
-                onChange={(e) => setLength(e.target.value)}
-                className="w-full bg-[#090e1c] border border-slate-750 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500/20 transition-all"
-              >
-                <option value="Short">Short (1–5 lines, punchy)</option>
-                <option value="Medium">Medium (6–10 lines, sweetspot)</option>
-                <option value="Long">Long (11–15 lines, deep story)</option>
-              </select>
+              
+              <Select value={length} onValueChange={setLength}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select length" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="Short">Short (1–5 lines, punchy)</SelectItem>
+                  <SelectItem value="Medium">Medium (6–10 lines, sweetspot)</SelectItem>
+                  <SelectItem value="Long">Long (11–15 lines, deep story)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
 
+            {/* Language Select */}
             <div className="space-y-1.5">
               <label className="text-[11px] font-semibold text-slate-300 flex items-center gap-1.5">
                 <Globe2 className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Tone & Language</span>
               </label>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="w-full bg-[#090e1c] border border-slate-750 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500 focus:ring-1 focus:ring-sky-500/20 transition-all"
-              >
-                <option value="English">English (Authentic Personal)</option>
-                <option value="Hinglish">Hinglish (Hindi + English blend)</option>
-              </select>
+              
+              <Select value={language} onValueChange={setLanguage}>
+                <SelectTrigger className="w-full">
+                  <SelectValue placeholder="Select language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="English">English (Authentic Personal)</SelectItem>
+                  <SelectItem value="Hinglish">Hinglish (Hindi + English blend)</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 
           {/* Autonomous Review Loop Slider */}
-          <div className="pt-2 bg-[#080d1a] p-3.5 rounded-xl border border-slate-800/80 space-y-2.5">
+          <div className="pt-2 bg-[#080d1a] p-3.5 rounded-2xl border border-slate-800/80 space-y-2.5">
             <div className="flex items-center justify-between">
               <span className="text-xs font-semibold text-slate-200 flex items-center gap-1.5">
                 <Zap className="w-3.5 h-3.5 text-amber-400" />
                 Autonomous Review Loops:
               </span>
               <Badge variant="sky" className="font-mono text-xs">
-                {maxAttempts} max attempt{maxAttempts > 1 ? 's' : ''}
+                {maxAttempts} max loop{maxAttempts > 1 ? 's' : ''}
               </Badge>
             </div>
             
@@ -199,8 +255,8 @@ export default function PromptControls({
               onValueChange={(val) => setMaxAttempts(val[0])}
             />
 
-            <p className="text-[10px] text-slate-400 leading-normal">
-              Reviewer Agent audits Hook Stopping Power, formatting, and voice authenticity. If score is under 85, Writer Agent iterates autonomously.
+            <p className="text-[10px] text-slate-400 leading-normal font-sans">
+              {getLoopDescription(maxAttempts)}
             </p>
           </div>
 
@@ -210,7 +266,7 @@ export default function PromptControls({
             size="xl"
             onClick={onGenerate}
             disabled={isGenerating || !topic.trim()}
-            className="w-full relative overflow-hidden group"
+            className="w-full relative overflow-hidden group font-bold tracking-wide"
           >
             {isGenerating ? (
               <span className="flex items-center gap-2">

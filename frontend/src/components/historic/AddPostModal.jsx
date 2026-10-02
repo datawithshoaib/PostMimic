@@ -1,3 +1,5 @@
+"use client";
+
 import React, { useState } from 'react';
 import { Plus, Sparkles } from 'lucide-react';
 import { 
@@ -10,6 +12,13 @@ import {
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
 
 export default function AddPostModal({ isOpen, onClose, onAddPost, isSubmitting }) {
   const [text, setText] = useState('');
@@ -86,14 +95,15 @@ export default function AddPostModal({ isOpen, onClose, onAddPost, isSubmitting 
               <label className="text-xs font-semibold text-slate-300">
                 Language
               </label>
-              <select
-                value={language}
-                onChange={(e) => setLanguage(e.target.value)}
-                className="w-full bg-[#090e1c] border border-slate-700/80 rounded-xl px-3 py-2 text-xs text-white outline-none focus:border-sky-500 h-9"
-              >
-                <option value="English">English</option>
-                <option value="Hinglish">Hinglish</option>
-              </select>
+              <Select value={language} onValueChange={setLanguage}>
+                <SelectTrigger className="h-9 text-xs">
+                  <SelectValue placeholder="Select Language" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="English">English</SelectItem>
+                  <SelectItem value="Hinglish">Hinglish</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
           </div>
 

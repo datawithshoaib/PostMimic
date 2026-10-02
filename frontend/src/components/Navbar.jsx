@@ -1,194 +1,134 @@
-import React from 'react';
-import { 
-  Sparkles, 
-  Cpu, 
-  History, 
-  Dna, 
-  Layers, 
-  Linkedin, 
-  User, 
-  LogOut, 
-  ChevronRight,
-  Zap,
-  ShieldCheck
-} from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Avatar, AvatarImage, AvatarFallback } from '@/components/ui/avatar';
+"use client";
 
-export default function Navbar({ 
-  user, 
-  currentTab, 
-  setCurrentTab, 
-  historicCount, 
-  draftsCount,
-  openAuthModal, 
-  openLinkedInModal, 
-  openProfileModal, 
-  onLogout,
-  onDemoLogin
+import React from "react";
+import {
+  Sparkles, Cpu, History, Dna, Layers, Linkedin, User, LogOut,
+  ChevronDown, Zap,
+} from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Avatar, AvatarImage, AvatarFallback } from "@/components/ui/avatar";
+import {
+  DropdownMenu, DropdownMenuTrigger, DropdownMenuContent, DropdownMenuItem,
+  DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuGroup,
+} from "@/components/ui/dropdown-menu";
+
+export default function Navbar({
+  user, currentTab, setCurrentTab, historicCount, draftsCount,
+  openAuthModal, openLinkedInModal, openProfileModal, onLogout,
+  onDemoLogin, onSelectPreset,
 }) {
   const tabs = [
-    { id: 'studio', label: 'Agent Studio', icon: Cpu, badge: 'Live' },
-    { id: 'historic', label: 'Historic Posts', icon: History, count: historicCount },
-    { id: 'style', label: 'Style DNA', icon: Dna },
-    { id: 'drafts', label: 'Drafts & Trace', icon: Layers, count: draftsCount },
+    { id: "studio", label: "Studio", icon: Cpu },
+    { id: "historic", label: "Samples", icon: History, count: historicCount },
+    { id: "style", label: "Style DNA", icon: Dna },
+    { id: "drafts", label: "Drafts", icon: Layers, count: draftsCount },
   ];
 
   return (
-    <header className="sticky top-0 z-40 bg-[#090d19]/85 backdrop-blur-xl border-b border-slate-800/80 transition-colors">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
-        
-        {/* Brand Logo */}
-        <div 
-          onClick={() => setCurrentTab('studio')}
-          className="flex items-center gap-3 cursor-pointer group shrink-0"
+    <header className="sticky top-0 z-40 border-b border-slate-800/80 bg-[#080d17]/90 backdrop-blur-xl">
+      <div className="mx-auto flex h-[72px] max-w-[1440px] items-center justify-between gap-4 px-4 sm:px-6 lg:px-10">
+        <button
+          onClick={() => setCurrentTab("studio")}
+          className="group flex shrink-0 items-center gap-3 text-left"
+          aria-label="PostMimic home"
         >
-          <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-sky-500 via-blue-600 to-indigo-600 flex items-center justify-center shadow-lg shadow-sky-500/20 group-hover:shadow-sky-500/35 group-hover:scale-105 transition-all">
-            <Sparkles className="w-5 h-5 text-white" />
-          </div>
-          <div>
-            <div className="flex items-center gap-2">
-              <span className="text-lg sm:text-xl font-extrabold tracking-tight text-white">
-                Post<span className="text-transparent bg-clip-text bg-gradient-to-r from-sky-400 to-blue-400">Mimic</span>
-              </span>
-              <Badge variant="sky" className="text-[10px] font-mono px-2 py-0 hidden sm:inline-flex">
-                Multi-Agent
-              </Badge>
-            </div>
-            <p className="text-[11px] text-slate-400 hidden lg:block -mt-0.5 font-medium">
-              LinkedIn Style Cloner & Multi-Agent Feedback Studio
-            </p>
-          </div>
-        </div>
+          <span className="flex h-10 w-10 items-center justify-center rounded-xl bg-gradient-to-br from-sky-400 to-blue-600 shadow-lg shadow-sky-950/40 ring-1 ring-white/10 transition-transform group-hover:scale-105">
+            <Sparkles className="h-5 w-5 text-white" />
+          </span>
+          <span>
+            <span className="block text-[17px] font-bold tracking-tight text-white">
+              Post<span className="text-sky-400">Mimic</span>
+            </span>
+            <span className="hidden text-[11px] font-medium text-slate-500 sm:block">LinkedIn writing studio</span>
+          </span>
+        </button>
 
-        {/* Navigation Tabs (shadcn style) */}
-        <nav className="hidden md:flex items-center gap-1.5 bg-[#0e1424]/90 p-1 rounded-2xl border border-slate-800/90 shadow-inner">
+        <nav aria-label="Main navigation" className="hidden items-center gap-1 rounded-xl border border-slate-800/80 bg-slate-950/50 p-1 md:flex">
           {tabs.map((tab) => {
             const Icon = tab.icon;
-            const isActive = currentTab === tab.id;
+            const active = currentTab === tab.id;
             return (
               <button
                 key={tab.id}
                 onClick={() => setCurrentTab(tab.id)}
-                className={`relative px-3.5 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-2 transition-all duration-200 select-none ${
-                  isActive
-                    ? 'bg-gradient-to-r from-sky-600 to-blue-600 text-white shadow-md shadow-sky-600/30'
-                    : 'text-slate-400 hover:text-slate-200 hover:bg-slate-800/50'
-                }`}
+                aria-current={active ? "page" : undefined}
+                className={`flex h-9 items-center gap-2 rounded-lg px-3.5 text-[13px] font-medium transition-colors ${active ? "bg-slate-800 text-white shadow-sm ring-1 ring-white/5" : "text-slate-400 hover:bg-slate-800/60 hover:text-slate-100"}`}
               >
-                <Icon className={`w-3.5 h-3.5 ${isActive ? 'text-white' : 'text-slate-400'}`} />
+                <Icon className={`h-4 w-4 ${active ? "text-sky-400" : "text-slate-500"}`} />
                 <span>{tab.label}</span>
-                {tab.count !== undefined && (
-                  <span className={`px-1.5 py-0.2 text-[10px] rounded-full font-mono font-bold ${
-                    isActive ? 'bg-sky-700/70 text-white' : 'bg-slate-800 text-slate-400'
-                  }`}>
-                    {tab.count}
-                  </span>
-                )}
-                {tab.badge && !isActive && (
-                  <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                )}
+                {tab.count !== undefined && <span className={`min-w-5 rounded-md px-1 text-center text-[10px] tabular-nums ${active ? "bg-slate-700 text-slate-200" : "bg-slate-900 text-slate-500"}`}>{tab.count}</span>}
               </button>
             );
           })}
         </nav>
 
-        {/* Right Header Actions */}
-        <div className="flex items-center gap-2 sm:gap-3">
-          {/* LinkedIn Connection Pill */}
-          <button
+        <div className="flex shrink-0 items-center gap-2">
+          <Button
+            variant="outline"
+            size="sm"
             onClick={openLinkedInModal}
-            className="flex items-center gap-2 px-3 py-1.5 rounded-xl bg-[#0f172a]/90 border border-slate-800 hover:border-sky-500/40 text-xs font-medium text-slate-300 hover:text-white transition-all shadow-sm group"
+            className="h-9 gap-2 border-slate-700 bg-slate-900/70 px-3 text-slate-300 hover:border-sky-500/50 hover:bg-slate-800 hover:text-white"
+            title="Sync or switch LinkedIn profile posts"
           >
-            <Linkedin className="w-3.5 h-3.5 text-sky-400 group-hover:scale-110 transition-transform shrink-0" />
-            <span className="hidden sm:inline">
-              {user ? `Connected: ${user.full_name?.split(' ')[0]}` : 'Sync LinkedIn'}
-            </span>
-            <span className="relative flex h-2 w-2">
-              <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
-            </span>
-          </button>
+            <Linkedin className="h-4 w-4 text-sky-400" />
+            <span className="hidden lg:inline">{user ? "LinkedIn" : "Connect"}</span>
+            {user && <span className="h-1.5 w-1.5 rounded-full bg-emerald-400" />}
+          </Button>
 
           {user ? (
-            <div className="flex items-center gap-2">
-              {/* User Profile trigger with shadcn Avatar */}
-              <button
-                onClick={openProfileModal}
-                className="flex items-center gap-2.5 p-1 pl-1.5 pr-2.5 rounded-xl hover:bg-slate-800/60 border border-transparent hover:border-slate-700 transition-all text-left group"
-                title="Edit author profile & persona brand"
-              >
-                <Avatar className="w-8 h-8 ring-1 ring-slate-700 group-hover:ring-sky-500 transition-all">
-                  <AvatarImage src={user.avatar_url} alt={user.full_name} />
-                  <AvatarFallback className="text-[11px] bg-sky-950 text-sky-300 font-bold">
-                    {user.full_name?.slice(0, 2).toUpperCase() || 'U'}
-                  </AvatarFallback>
-                </Avatar>
-                <div className="hidden xl:block leading-tight">
-                  <p className="text-xs font-bold text-white truncate max-w-[110px]">
-                    {user.full_name}
-                  </p>
-                  <p className="text-[10px] text-slate-400 truncate max-w-[110px]">
-                    {user.headline || 'Content Creator'}
-                  </p>
-                </div>
-              </button>
-
-              {/* Logout Button */}
-              <Button
-                variant="ghost"
-                size="iconSm"
-                onClick={onLogout}
-                title="Logout"
-                className="text-slate-400 hover:text-rose-400 hover:bg-rose-500/10"
-              >
-                <LogOut className="w-4 h-4" />
-              </Button>
-            </div>
-          ) : (
-            <div className="flex items-center gap-2">
-              <Button
-                variant="secondary"
-                size="sm"
-                onClick={onDemoLogin}
-                className="text-sky-300 hover:text-sky-200 border-sky-500/20"
-              >
-                <Zap className="w-3 h-3 text-sky-400 mr-1" />
-                1-Click Demo
-              </Button>
-              <Button
-                variant="gradient"
-                size="sm"
-                onClick={openAuthModal}
-              >
-                Sign In
-              </Button>
-            </div>
-          )}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button className="flex h-10 items-center gap-2 rounded-xl border border-transparent px-1.5 pr-2.5 text-left transition-colors hover:border-slate-800 hover:bg-slate-900 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-sky-500/50" aria-label="User account menu">
+                  <Avatar className="h-8 w-8 ring-1 ring-slate-700">
+                    <AvatarImage src={user.avatar_url} alt={user.full_name} />
+                    <AvatarFallback className="bg-sky-950 font-semibold text-sky-300">{user.full_name?.slice(0, 2).toUpperCase() || "U"}</AvatarFallback>
+                  </Avatar>
+                  <span className="hidden max-w-28 xl:block">
+                    <span className="block truncate text-xs font-semibold text-slate-200">{user.full_name}</span>
+                    <span className="block truncate text-[10px] text-slate-500">{user.headline || "Content creator"}</span>
+                  </span>
+                  <ChevronDown className="hidden h-3.5 w-3.5 text-slate-500 xl:block" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-60">
+                <DropdownMenuLabel className="pb-1">
+                  <span className="block text-xs font-semibold text-white">{user.full_name}</span>
+                  <span className="block truncate text-[10px] font-normal text-slate-400">{user.email}</span>
+                </DropdownMenuLabel>
+                <DropdownMenuSeparator />
+                <DropdownMenuGroup>
+                  <DropdownMenuItem onClick={openProfileModal} className="gap-2"><User className="h-4 w-4 text-sky-400" />Edit author profile</DropdownMenuItem>
+                  <DropdownMenuItem onClick={openLinkedInModal} className="gap-2"><Linkedin className="h-4 w-4 text-sky-400" />LinkedIn sync & presets</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => setCurrentTab("style")} className="gap-2"><Dna className="h-4 w-4 text-violet-400" />Inspect Style DNA</DropdownMenuItem>
+                </DropdownMenuGroup>
+                {onSelectPreset && <>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuLabel className="text-[10px] text-slate-500">Switch demo persona</DropdownMenuLabel>
+                  <DropdownMenuItem onClick={() => onSelectPreset("tech_educator")}>Mohan Sharma · Educator</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSelectPreset("ai_founder")}>Sarah Chen · AI Founder</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => onSelectPreset("growth_creator")}>Arjun Mehta · Growth Lead</DropdownMenuItem>
+                </>}
+                <DropdownMenuSeparator />
+                <DropdownMenuItem onClick={onLogout} className="gap-2 text-rose-400 focus:bg-rose-500/10 focus:text-rose-300"><LogOut className="h-4 w-4" />Log out</DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          ) : <>
+            <Button variant="secondary" size="sm" onClick={onDemoLogin} className="hidden h-9 gap-1.5 sm:inline-flex"><Zap className="h-3.5 w-3.5 text-amber-400" />Demo</Button>
+            <Button size="sm" onClick={openAuthModal} className="h-9">Sign in</Button>
+          </>}
         </div>
-
       </div>
 
-      {/* Mobile Tab Navigation */}
-      <div className="flex md:hidden items-center justify-around border-t border-slate-800/80 bg-[#0a0f1d] px-2 py-1.5">
+      <nav aria-label="Mobile navigation" className="grid grid-cols-4 border-t border-slate-800/70 bg-slate-950/50 px-2 py-1.5 md:hidden">
         {tabs.map((tab) => {
           const Icon = tab.icon;
-          const isActive = currentTab === tab.id;
-          return (
-            <button
-              key={tab.id}
-              onClick={() => setCurrentTab(tab.id)}
-              className={`flex flex-col items-center gap-1 py-1 px-3 rounded-xl text-[10px] font-medium transition-all ${
-                isActive ? 'text-sky-400 font-bold bg-sky-500/10' : 'text-slate-400 hover:text-slate-200'
-              }`}
-            >
-              <Icon className="w-4 h-4" />
-              <span>{tab.label.split(' ')[0]}</span>
-            </button>
-          );
+          const active = currentTab === tab.id;
+          return <button key={tab.id} onClick={() => setCurrentTab(tab.id)} aria-current={active ? "page" : undefined} className={`flex flex-col items-center gap-1 rounded-lg py-1.5 text-[10px] font-medium ${active ? "text-sky-300" : "text-slate-500 hover:text-slate-300"}`}>
+            <span className="relative"><Icon className="h-[17px] w-[17px]" />{tab.count > 0 && <span className="absolute -right-2 -top-1 rounded-full bg-sky-500 px-1 text-[8px] leading-3 text-white">{tab.count}</span>}</span>
+            <span>{tab.label}</span>
+          </button>;
         })}
-      </div>
+      </nav>
     </header>
   );
 }

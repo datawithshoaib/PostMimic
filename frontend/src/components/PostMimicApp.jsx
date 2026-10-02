@@ -11,6 +11,7 @@ import AuthModal from "@/components/modals/AuthModal";
 import LinkedInModal from "@/components/modals/LinkedInModal";
 import ProfileModal from "@/components/modals/ProfileModal";
 import AddPostModal from "@/components/historic/AddPostModal";
+import { TooltipProvider } from "@/components/ui/tooltip";
 import {
   authApi,
   profileApi,
@@ -340,115 +341,119 @@ export default function PostMimicApp() {
   };
 
   return (
-    <div className="min-h-screen bg-[#070b14] text-slate-100 flex flex-col font-sans selection:bg-sky-500 selection:text-white">
-      <Navbar
-        user={user}
-        currentTab={currentTab}
-        setCurrentTab={setCurrentTab}
-        historicCount={historicPosts.length}
-        draftsCount={drafts.length}
-        openAuthModal={() => setAuthModalOpen(true)}
-        openLinkedInModal={() => setLinkedinModalOpen(true)}
-        openProfileModal={() => setProfileModalOpen(true)}
-        onLogout={handleLogout}
-        onDemoLogin={() => handleDemoLogin(true)}
-      />
+    <TooltipProvider delayDuration={200}>
+      <div className="min-h-screen bg-transparent text-slate-100 flex flex-col font-sans">
+        <Navbar
+          user={user}
+          currentTab={currentTab}
+          setCurrentTab={setCurrentTab}
+          historicCount={historicPosts.length}
+          draftsCount={drafts.length}
+          openAuthModal={() => setAuthModalOpen(true)}
+          openLinkedInModal={() => setLinkedinModalOpen(true)}
+          openProfileModal={() => setProfileModalOpen(true)}
+          onLogout={handleLogout}
+          onDemoLogin={() => handleDemoLogin(true)}
+          onSelectPreset={handleSelectPreset}
+          personaTitle={styleProfile?.persona_name}
+        />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-        {currentTab === "studio" && (
-          <StudioTab
-            topic={topic}
-            setTopic={setTopic}
-            length={length}
-            setLength={setLength}
-            language={language}
-            setLanguage={setLanguage}
-            maxAttempts={maxAttempts}
-            setMaxAttempts={setMaxAttempts}
-            onGenerate={handleGenerate}
-            isGenerating={isGenerating}
-            currentPost={currentPost}
-            activeAttemptIndex={activeAttemptIndex}
-            setActiveAttemptIndex={setActiveAttemptIndex}
-            user={user}
-            onRefine={handleRefine}
-            isRefining={isRefining}
-            onSaveDraft={() => {
-              addToast("Post safely archived in your Drafts & History tab!", "success");
-              setCurrentTab("drafts");
-            }}
-            personaTitle={styleProfile?.persona_name}
-            onSwitchTab={setCurrentTab}
-            onCopySuccess={() =>
-              addToast("Post copied to clipboard with exact line breaks!", "success")
-            }
-          />
-        )}
+        <main className="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 lg:px-10 py-7 lg:py-9">
+          {currentTab === "studio" && (
+            <StudioTab
+              topic={topic}
+              setTopic={setTopic}
+              length={length}
+              setLength={setLength}
+              language={language}
+              setLanguage={setLanguage}
+              maxAttempts={maxAttempts}
+              setMaxAttempts={setMaxAttempts}
+              onGenerate={handleGenerate}
+              isGenerating={isGenerating}
+              currentPost={currentPost}
+              activeAttemptIndex={activeAttemptIndex}
+              setActiveAttemptIndex={setActiveAttemptIndex}
+              user={user}
+              onRefine={handleRefine}
+              isRefining={isRefining}
+              onSaveDraft={() => {
+                addToast("Post safely archived in your Drafts & History tab!", "success");
+                setCurrentTab("drafts");
+              }}
+              personaTitle={styleProfile?.persona_name}
+              onSwitchTab={setCurrentTab}
+              onCopySuccess={() =>
+                addToast("Post copied to clipboard with exact line breaks!", "success")
+              }
+            />
+          )}
 
-        {currentTab === "historic" && (
-          <HistoricTab
-            historicPosts={historicPosts}
-            onUseTopic={handleUseTopicFromHistoric}
-            onDeletePost={handleDeleteHistoricPost}
-            onOpenAddModal={() => setAddPostModalOpen(true)}
-            onOpenLinkedInModal={() => setLinkedinModalOpen(true)}
-            onReanalyzeStyle={handleReanalyzeStyle}
-            isReanalyzing={isReanalyzing}
-          />
-        )}
+          {currentTab === "historic" && (
+            <HistoricTab
+              historicPosts={historicPosts}
+              onUseTopic={handleUseTopicFromHistoric}
+              onDeletePost={handleDeleteHistoricPost}
+              onOpenAddModal={() => setAddPostModalOpen(true)}
+              onOpenLinkedInModal={() => setLinkedinModalOpen(true)}
+              onReanalyzeStyle={handleReanalyzeStyle}
+              isReanalyzing={isReanalyzing}
+            />
+          )}
 
-        {currentTab === "style" && (
-          <StyleTab
-            styleProfile={styleProfile}
-            onReanalyzeStyle={handleReanalyzeStyle}
-            isReanalyzing={isReanalyzing}
-          />
-        )}
+          {currentTab === "style" && (
+            <StyleTab
+              styleProfile={styleProfile}
+              onReanalyzeStyle={handleReanalyzeStyle}
+              isReanalyzing={isReanalyzing}
+            />
+          )}
 
-        {currentTab === "drafts" && (
-          <DraftsTab
-            drafts={drafts}
-            onLoadDraft={handleLoadDraft}
-            onDeleteDraft={handleDeleteDraft}
-            onCopySuccess={() => addToast("Post copied to clipboard!", "success")}
-          />
-        )}
-      </main>
+          {currentTab === "drafts" && (
+            <DraftsTab
+              drafts={drafts}
+              onLoadDraft={handleLoadDraft}
+              onDeleteDraft={handleDeleteDraft}
+              onCopySuccess={() => addToast("Post copied to clipboard!", "success")}
+            />
+          )}
+        </main>
 
-      <AuthModal
-        isOpen={authModalOpen}
-        onClose={() => setAuthModalOpen(false)}
-        onLogin={handleLogin}
-        onRegister={handleRegister}
-        onDemoLogin={() => handleDemoLogin(true)}
-        isLoading={isModalSubmitting}
-      />
+        <AuthModal
+          isOpen={authModalOpen}
+          onClose={() => setAuthModalOpen(false)}
+          onLogin={handleLogin}
+          onRegister={handleRegister}
+          onDemoLogin={() => handleDemoLogin(true)}
+          isLoading={isModalSubmitting}
+        />
 
-      <LinkedInModal
-        isOpen={linkedinModalOpen}
-        onClose={() => setLinkedinModalOpen(false)}
-        onExtractUrl={handleLinkedInUrlExtract}
-        onSelectPreset={handleSelectPreset}
-        onImportCustomPosts={handleImportCustomPosts}
-        isLoading={isModalSubmitting}
-      />
+        <LinkedInModal
+          isOpen={linkedinModalOpen}
+          onClose={() => setLinkedinModalOpen(false)}
+          onExtractUrl={handleLinkedInUrlExtract}
+          onSelectPreset={handleSelectPreset}
+          onImportCustomPosts={handleImportCustomPosts}
+          isLoading={isModalSubmitting}
+        />
 
-      <ProfileModal
-        isOpen={profileModalOpen}
-        onClose={() => setProfileModalOpen(false)}
-        user={user}
-        onUpdateProfile={handleUpdateProfile}
-        isLoading={isModalSubmitting}
-      />
+        <ProfileModal
+          isOpen={profileModalOpen}
+          onClose={() => setProfileModalOpen(false)}
+          user={user}
+          onUpdateProfile={handleUpdateProfile}
+          isLoading={isModalSubmitting}
+        />
 
-      <AddPostModal
-        isOpen={addPostModalOpen}
-        onClose={() => setAddPostModalOpen(false)}
-        onAddPost={handleAddHistoricPost}
-        isSubmitting={isModalSubmitting}
-      />
+        <AddPostModal
+          isOpen={addPostModalOpen}
+          onClose={() => setAddPostModalOpen(false)}
+          onAddPost={handleAddHistoricPost}
+          isSubmitting={isModalSubmitting}
+        />
 
-      <ToastContainer toasts={toasts} removeToast={removeToast} />
-    </div>
+        <ToastContainer toasts={toasts} removeToast={removeToast} />
+      </div>
+    </TooltipProvider>
   );
 }

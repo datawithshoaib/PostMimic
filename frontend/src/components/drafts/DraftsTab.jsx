@@ -1,21 +1,28 @@
-import React, { useState } from 'react';
+"use client";
+
+import React, { useState, useMemo } from 'react';
 import { 
   Layers, 
   ExternalLink, 
   Trash2, 
   Copy, 
   Check, 
-  CheckCircle2, 
   Clock, 
-  AlertCircle, 
-  Sparkles,
-  Inbox,
-  Calendar,
-  ShieldAlert
+  Inbox, 
+  Calendar, 
+  ShieldAlert,
+  Search,
+  X,
+  Filter
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardHeader, CardTitle, CardDescription, CardContent } from '@/components/ui/card';
+import {
+  Tabs,
+  TabsList,
+  TabsTrigger
+} from '@/components/ui/tabs';
 
 export default function DraftsTab({
   drafts,
@@ -24,6 +31,8 @@ export default function DraftsTab({
   onCopySuccess
 }) {
   const [copiedId, setCopiedId] = useState(null);
+  const [searchQuery, setSearchQuery] = useState('');
+  const [filterStatus, setFilterStatus] = useState('ALL'); // 'ALL' | 'APPROVED' | 'MULTI_LOOP'
 
   const handleCopy = (id, text) => {
     navigator.clipboard.writeText(text).then(async () => {
@@ -45,6 +54,24 @@ export default function DraftsTab({
       setTimeout(() => setCopiedId(null), 2500);
     });
   };
+
+  const filteredDrafts = useMemo(() => {
+    return drafts.filter((d) => {
+      const q = searchQuery.toLowerCase();
+      const matchesSearch = !q 
+        || (d.topic && d.topic.toLowerCase().includes(q))
+        || (d.final_post && d.final_post.toLowerCase().includes(q));
+
+      let matchesStatus = true;
+      if (filterStatus === 'APPROVED') {
+        matchesStatus = d.is_approved === true;
+      } else if (filterStatus === 'MULTI_LOOP') {
+        matchesStatus = (d.attempts || 1) > 1;
+      }
+
+      return matchesSearch && matchesStatus;
+    });
+  }, [drafts, searchQuery, filterStatus]);
 
   return (
     <div className="space-y-6">
@@ -74,22 +101,80 @@ export default function DraftsTab({
         </CardContent>
       </Card>
 
+      {/* Filter and Search Bar */}
+      <Card className="border-slate-800/80">
+        <CardContent className="p-3.5 flex flex-wrap items-center justify-between gap-3">
+          
+          {/* Search */}
+          <div className="flex items-center gap-2 flex-1 min-w-[240px] bg-[#090e1c] px-3.5 py-1 rounded-xl border border-slate-750">
+            <Search className="w-4 h-4 text-slate-400 shrink-0" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search drafts by topic or keywords..."
+              className="w-full bg-transparent text-xs text-white placeholder-slate-500 outline-none h-7"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="text-slate-400 hover:text-white transition-colors"
+                title="Clear search"
+              >
+                <X className="w-3.5 h-3.5" />
+              </button>
+            )}
+          </div>
+
+          {/* Status Tabs Filter */}
+          <div className="flex items-center gap-1.5 bg-[#080d1a] p-1 rounded-xl border border-slate-800">
+            <button
+              onClick={() => setFilterStatus('ALL')}
+              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+                filterStatus === 'ALL' ? 'bg-slate-700 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              All ({drafts.length})
+            </button>
+            <button
+              onClick={() => setFilterStatus('APPROVED')}
+              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+                filterStatus === 'APPROVED' ? 'bg-emerald-600/80 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Approved
+            </button>
+            <button
+              onClick={() => setFilterStatus('MULTI_LOOP')}
+              className={`px-3 py-1 text-xs font-semibold rounded-lg transition-all ${
+                filterStatus === 'MULTI_LOOP' ? 'bg-sky-600/80 text-white shadow-sm' : 'text-slate-400 hover:text-white'
+              }`}
+            >
+              Multi-Loop (2+)
+            </button>
+          </div>
+
+        </CardContent>
+      </Card>
+
       {/* Drafts List */}
-      {drafts.length === 0 ? (
+      {filteredDrafts.length === 0 ? (
         <Card className="text-center py-16 border-slate-800/80">
           <CardContent className="space-y-3">
             <Inbox className="w-12 h-12 mx-auto text-slate-600" />
             <div>
-              <h3 className="text-sm font-bold text-slate-300">No generated drafts yet</h3>
+              <h3 className="text-sm font-bold text-slate-300">No generated drafts found</h3>
               <p className="text-xs text-slate-500 mt-0.5 max-w-sm mx-auto">
-                Go to the Agent Studio to create and review your first multi-agent LinkedIn post.
+                {drafts.length === 0 
+                  ? 'Go to the Agent Studio to create and review your first multi-agent LinkedIn post.' 
+                  : 'Try adjusting your search query or status filter.'}
               </p>
             </div>
           </CardContent>
         </Card>
       ) : (
         <div className="space-y-4">
-          {drafts.map((draft) => {
+          {filteredDrafts.map((draft) => {
             const isApproved = draft.is_approved;
             const dateStr = new Date(draft.created_at).toLocaleDateString(undefined, {
               month: 'short',
